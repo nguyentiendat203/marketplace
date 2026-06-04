@@ -1,7 +1,20 @@
-.gradle
-.vscode
+target/
+build/
+out/
+.gradle/
+/bin/
+
+# Spring Boot Specifics & Secrets
+.sts4-cache/
+.springBeans/
+*.log
+logs/
 .env
-build
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+.env.local
+*.properties.local
+*.yml.local
+
+.vscode/
+.DS_Store
+
+
