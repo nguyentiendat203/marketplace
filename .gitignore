@@ -2,7 +2,7 @@ target/
 build/
 out/
 .gradle/
-/bin/
+bin/
 
 # Spring Boot Specifics & Secrets
 .sts4-cache/

@@ -6,11 +6,35 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: marketplace_db
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+      # 3. Object Storage: MinIO (Thay thế AWS S3 dưới Local để lưu ảnh KYC, ảnh Sản phẩm)
+  minio:
+    image: minio/minio:latest
+    container_name: secondlife_minio
+    restart: always
+    ports:
+      - '9000:9000' # API Port (Dành cho Spring Boot và React gọi upload/download)
+      - '9001:9001' # Console Port (Giao diện Web để bạn vào quản lý bucket trực quan)
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - secondlife_network
+
 volumes:
   postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  secondlife_network:
+    driver: bridge
