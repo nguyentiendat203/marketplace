@@ -2,6 +2,7 @@ package vn.datnguy3n.marketplace.modules.payment;
 
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,27 +12,24 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import vn.datnguy3n.marketplace.common.ApiResponse;
-import vn.datnguy3n.marketplace.modules.payment.dto.PaymentRequest;
-import vn.datnguy3n.marketplace.modules.payment.dto.PaymentResponse;
+import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
+import vn.datnguy3n.marketplace.modules.payment.entity.Payment;
 
 @RestController
 @RequestMapping("/api/v1/payments")
-@RequiredArgsConstructor
-public class PaymentController {
+public class PaymentController extends BaseCRUDController<Payment> {
 
     private final PaymentService paymentService;
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<PaymentResponse>> initiate(@Valid @RequestBody PaymentRequest request) {
-        return ResponseEntity.ok(ApiResponse.ok("Payment initiated", 200, paymentService.initiate(request)));
+    public PaymentController(PaymentService paymentService) {
+        super(paymentService);
+        this.paymentService = paymentService;
     }
 
+
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<ApiResponse<PaymentResponse>> getByOrder(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(ApiResponse.ok("Payment fetched", 200, paymentService.getByOrderId(orderId)));
+    public ResponseEntity<ApiResponse<Payment>> getByOrder(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(ApiResponse.ok("Payment fetched", HttpStatus.OK.value(), paymentService.getByOrderId(orderId)));
     }
 
     @PostMapping("/webhook")
@@ -43,7 +41,7 @@ public class PaymentController {
     }
 
     @PostMapping("/order/{orderId}/refund")
-    public ResponseEntity<ApiResponse<PaymentResponse>> refund(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(ApiResponse.ok("Refund initiated", 200, paymentService.refund(orderId)));
+    public ResponseEntity<ApiResponse<Payment>> refund(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(ApiResponse.ok("Refund initiated", HttpStatus.OK.value(), paymentService.refund(orderId)));
     }
 }

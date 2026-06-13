@@ -1,6 +1,11 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
@@ -17,9 +22,9 @@ public class ProductAttribute extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @Column(name = "attr_key", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String attrKey;
 
-    @Column(name = "attr_value", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String attrValue;
 }

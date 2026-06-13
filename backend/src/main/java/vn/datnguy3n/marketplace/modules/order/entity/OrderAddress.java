@@ -1,6 +1,11 @@
 package vn.datnguy3n.marketplace.modules.order.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
@@ -17,24 +22,24 @@ public class OrderAddress extends BaseEntity {
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     private Order order;
 
-    @Column(name = "postal_code", nullable = false, length = 10)
+    @Column(nullable = false, length = 10)
     private String postalCode;
 
-    @Column(name = "prefecture", nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String prefecture;
 
-    @Column(name = "city", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String city;
 
-    @Column(name = "street", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String street;
 
-    @Column(name = "building", length = 255)
+    @Column(length = 255)
     private String building;
 
-    @Column(name = "recipient_name", nullable = false, length = 150)
+    @Column(nullable = false, length = 150)
     private String recipientName;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private String phone;
 }

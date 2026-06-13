@@ -1,13 +1,21 @@
 package vn.datnguy3n.marketplace.modules.payment.entity;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+import org.hibernate.annotations.SQLRestriction;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import vn.datnguy3n.marketplace.common.BaseEntity;
-
-import java.math.BigDecimal;
-import java.util.UUID;
+import vn.datnguy3n.marketplace.modules.order.entity.Order;
+import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "payments")
@@ -16,25 +24,27 @@ import java.util.UUID;
 @Setter
 public class Payment extends BaseEntity {
 
-    @Column(name = "order_id", nullable = false, unique = true)
-    private UUID orderId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    private Order order;
 
-    @Column(name = "buyer_id", nullable = false)
-    private UUID buyerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "buyer_id", nullable = false)
+    private User buyer;
 
-    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(name = "currency", nullable = false, length = 10)
+    @Column(nullable = false, length = 10)
     private String currency = "JPY";
 
     // Must not be null when status = COMPLETED (invariant #6)
-    @Column(name = "stripe_payment_intent_id", length = 100)
+    @Column(length = 100)
     private String stripePaymentIntentId;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "PENDING";
+    @Column(nullable = false, length = 20)
+    private PaymentStatus status = PaymentStatus.PENDING;
 
-    @Column(name = "webhook_event", length = 100)
+    @Column(length = 100)
     private String webhookEvent;
 }

@@ -1,12 +1,16 @@
 package vn.datnguy3n.marketplace.modules.user.entity;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.SQLRestriction;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import vn.datnguy3n.marketplace.common.BaseEntity;
-
-import java.util.UUID;
 
 @Entity
 @Table(
@@ -18,9 +22,11 @@ import java.util.UUID;
 @Setter
 public class UserBlock extends BaseEntity {
 
-    @Column(name = "blocker_id", nullable = false)
-    private UUID blockerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blocker_id", nullable = false)
+    private User blocker;
 
-    @Column(name = "blocked_id", nullable = false)
-    private UUID blockedId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blocked_id", nullable = false)
+    private User blocked;
 }

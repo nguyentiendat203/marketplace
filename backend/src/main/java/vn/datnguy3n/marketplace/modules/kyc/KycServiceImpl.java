@@ -1,51 +1,45 @@
 package vn.datnguy3n.marketplace.modules.kyc;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
-import vn.datnguy3n.marketplace.modules.kyc.dto.KycSubmitRequest;
-
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
+import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
+
 @Service
-@RequiredArgsConstructor
-public class KycServiceImpl implements KycService {
+public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements KycService {
 
     private final KycRepository kycRepository;
 
-    @Override
-    public KycResponse submit(KycSubmitRequest request) {
-        // TODO: persist KycRecord with PENDING status, trigger async MinIO upload notification
-        return null;
+    public KycServiceImpl(KycRepository kycRepository) {
+        super(kycRepository);
+        this.kycRepository = kycRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public KycResponse getById(UUID id) {
-        // TODO: throw NotFoundException if absent, map to DTO
-        return null;
+    public KycRecord getLatestByUserId(UUID userId) {
+        return kycRepository.findTopByUser_IdOrderByCreatedAtDesc(userId).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public KycResponse getLatestByUserId(UUID userId) {
-        // TODO: fetch latest record, map to DTO
-        return null;
+    public List<KycRecord> getPendingRequests() {
+        return kycRepository.findByStatus("PENDING");
     }
 
+    @Transactional
     @Override
-    public List<KycResponse> getPendingRequests() {
-        // TODO: fetch all PENDING, map to DTOs
-        return List.of();
-    }
-
-    @Override
-    public KycResponse approve(UUID id, String reviewedBy) {
+    public KycRecord approve(UUID id, String reviewedBy) {
         // TODO: set status=APPROVED, reviewedBy, persist; notify user via UserService
         return null;
     }
 
+    @Transactional
     @Override
-    public KycResponse reject(UUID id, String reviewedBy, String note) {
+    public KycRecord reject(UUID id, String reviewedBy, String note) {
         // TODO: set status=REJECTED, reviewedBy, reviewNote, persist; notify user
         return null;
     }

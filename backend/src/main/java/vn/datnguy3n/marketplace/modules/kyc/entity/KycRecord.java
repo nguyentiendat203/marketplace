@@ -1,12 +1,17 @@
 package vn.datnguy3n.marketplace.modules.kyc.entity;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.SQLRestriction;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import vn.datnguy3n.marketplace.common.BaseEntity;
-
-import java.util.UUID;
+import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "kyc_records")
@@ -15,27 +20,26 @@ import java.util.UUID;
 @Setter
 public class KycRecord extends BaseEntity {
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "document_type", nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String documentType;
 
-    @Column(name = "front_image_url", nullable = false)
+    @Column(nullable = false)
     private String frontImageUrl;
 
-    @Column(name = "back_image_url")
     private String backImageUrl;
 
-    @Column(name = "selfie_url")
     private String selfieUrl;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "PENDING";
+    @Column(nullable = false, length = 20)
+    private KycStatus status = KycStatus.PENDING;
 
-    @Column(name = "reviewed_by", length = 36)
+    @Column(length = 36)
     private String reviewedBy;
 
-    @Column(name = "review_note", length = 500)
+    @Column(length = 500)
     private String reviewNote;
 }

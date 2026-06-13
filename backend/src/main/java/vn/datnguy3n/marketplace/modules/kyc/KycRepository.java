@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface KycRepository extends JpaRepository<KycRecord, UUID> {
 
-    Optional<KycRecord> findTopByUserIdOrderByCreatedAtDesc(UUID userId);
+    Optional<KycRecord> findTopByUser_IdOrderByCreatedAtDesc(UUID userId);
 
     List<KycRecord> findByStatus(String status);
 }

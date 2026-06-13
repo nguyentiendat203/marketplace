@@ -1,15 +1,22 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.hibernate.annotations.SQLRestriction;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import vn.datnguy3n.marketplace.common.BaseEntity;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "products")
@@ -18,23 +25,24 @@ import java.util.UUID;
 @Setter
 public class Product extends BaseEntity {
 
-    @Column(name = "seller_id", nullable = false)
-    private UUID sellerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String title;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price", nullable = false, precision = 15, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "condition", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private String condition;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status = "AVAILABLE";
+    @Column(nullable = false, length = 20)
+    private ProductStatus status = ProductStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
@@ -44,9 +52,9 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> images = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    private List<ProductImage> images;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductAttribute> attributes = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    private List<ProductAttribute> attributes;
 }

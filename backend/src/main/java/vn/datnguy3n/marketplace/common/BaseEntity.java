@@ -1,16 +1,22 @@
 package vn.datnguy3n.marketplace.common;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
+import java.util.UUID;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -20,28 +26,27 @@ public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false)
     private UUID id;
 
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Column( updatable = false)
+    private Instant createdAt;
 
     @CreatedBy
-    @Column(name = "created_by", updatable = false, length = 36)
-    private String createdBy;
+    @Column(updatable = false, length = 36)
+    private UUID createdBy;
 
     @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @LastModifiedBy
-    @Column(name = "updated_by", length = 36)
-    private String updatedBy;
+    @Column( length = 36)
+    private UUID updatedBy;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column()
+    private Instant deletedAt;
 
-    @Column(name = "deleted_by", length = 36)
-    private String deletedBy;
+    @Column( length = 36)
+    private UUID deletedBy;
 }

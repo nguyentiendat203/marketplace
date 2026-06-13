@@ -1,22 +1,18 @@
 package vn.datnguy3n.marketplace.modules.order;
 
-import vn.datnguy3n.marketplace.modules.order.dto.OrderRequest;
-import vn.datnguy3n.marketplace.modules.order.dto.OrderResponse;
+import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
+import vn.datnguy3n.marketplace.modules.order.entity.Order;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface OrderService {
+public interface OrderService extends BaseCRUDService<Order> {
 
-    OrderResponse create(OrderRequest request);
+    List<Order> getByBuyer(UUID buyerId);
 
-    OrderResponse getById(UUID id);
+    List<Order> getBySeller(UUID sellerId);
 
-    List<OrderResponse> getByBuyer(UUID buyerId);
+    Order updateStatus(UUID id, String status, UUID requesterId);
 
-    List<OrderResponse> getBySeller(UUID sellerId);
-
-    OrderResponse updateStatus(UUID id, String status, UUID requesterId);
-
-    OrderResponse cancel(UUID id, UUID requesterId);
+    Order cancel(UUID id, UUID requesterId);
 }

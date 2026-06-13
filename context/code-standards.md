@@ -47,6 +47,9 @@
 - **Data Transfer Objects (DTO):** Không bao giờ trả trực tiếp thực thể Database (`@Entity`) về cho client ở tầng Controller. Mọi Request/Response phải được map qua các lớp DTO riêng biệt để bảo mật thông tin.
 - **Lombok Usage Caution:** Sử dụng `@Getter`, `@Setter` và `@RequiredArgsConstructor` thay cho `@Data`. Tuyệt đối không dùng `@EqualsAndHashCode` hoặc `@ToString` trên các Entity có mối quan hệ `@OneToMany` hoặc `@ManyToMany` để tránh lỗi tràn bộ nhớ (Infinite Loop / StackOverflowError).
 - **Validation:** Bắt buộc sử dụng các Annotation đi kèm như `@Valid`, `@NotBlank`, `@Size`, `@Min` tại tầng Controller để chặn đứng dữ liệu rác ngay ở cửa ngõ API.
+- **Generic CRUD Enforcement:**
+  - 100% các APIs CRUD cơ bản của các module không được viết lại code thủ công.
+  - Bắt buộc phải triển khai và kế thừa thông qua bộ khung Generics tại gói core: `BaseCRUDService`, `BaseCRUDServiceImpl`, và `BaseCRUDController` sử dụng kiểu định danh `UUID`.
 
 ---
 
@@ -65,6 +68,7 @@
   ```json
   {
     "success": true/false,
+    "statusCode": {...} ,
     "message": "Thông báo phản hồi trực quan",
     "data": { ... } // Hoặc null nếu lỗi
   }

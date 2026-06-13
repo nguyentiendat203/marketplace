@@ -1,22 +1,18 @@
 package vn.datnguy3n.marketplace.modules.kyc;
 
-import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
-import vn.datnguy3n.marketplace.modules.kyc.dto.KycSubmitRequest;
+import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
+import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface KycService {
+public interface KycService extends BaseCRUDService<KycRecord> {
 
-    KycResponse submit(KycSubmitRequest request);
+    KycRecord getLatestByUserId(UUID userId);
 
-    KycResponse getById(UUID id);
+    List<KycRecord> getPendingRequests();
 
-    KycResponse getLatestByUserId(UUID userId);
+    KycRecord approve(UUID id, String reviewedBy);
 
-    List<KycResponse> getPendingRequests();
-
-    KycResponse approve(UUID id, String reviewedBy);
-
-    KycResponse reject(UUID id, String reviewedBy, String note);
+    KycRecord reject(UUID id, String reviewedBy, String note);
 }
