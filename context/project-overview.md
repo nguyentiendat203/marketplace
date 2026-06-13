@@ -2,7 +2,7 @@
 
 ## Overview
 
-SecondLife là một nền tảng thương mại điện tử trung gian dạng Peer-to-Peer (P2P) dành riêng cho việc mua bán và giao dịch đồ cũ giữa các cá nhân. Ứng dụng giải quyết hai bài toán lớn nhất của thị trường đồ cũ hiện nay: rủi ro lừa đảo và sự thiếu minh bạch về tình trạng sản phẩm. Bằng cách tích hợp quy trình xác thực danh tính người dùng nghiêm ngặt (KYC) cùng giải pháp thanh toán trung gian (Escrow Payment) qua Stripe, SecondLife đảm bảo dòng tiền của người mua chỉ được giải ngân cho người bán khi sản phẩm được giao đúng mô tả, tạo dựng một môi trường an toàn tuyệt đối cho người tham gia.
+SecondLife là một nền tảng thương mại điện tử trung gian dạng C2C (Consumer-to-Consumer) dành riêng cho việc mua bán và giao dịch đồ cũ giữa các cá nhân. Ứng dụng giải quyết hai bài toán lớn nhất của thị trường đồ cũ hiện nay: rủi ro lừa đảo và sự thiếu minh bạch về tình trạng sản phẩm. Bằng cách tích hợp quy trình xác thực danh tính người dùng nghiêm ngặt (KYC) cùng giải pháp thanh toán trung gian (Escrow Payment) qua Stripe, SecondLife đảm bảo dòng tiền của người mua chỉ được giải ngân cho người bán khi sản phẩm được giao đúng mô tả, tạo dựng một môi trường an toàn tuyệt đối cho người tham gia.
 
 ## Goals
 
@@ -35,7 +35,7 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 | Field Name                | Data Type | Key / Constraint        | Description                                                       |
 | :------------------------ | :-------- | :---------------------- | :---------------------------------------------------------------- |
 | `id`                      | PK(uuid)  | Primary Key             | Định danh duy nhất của user                                       |
-| `role_id`                 | FK        | Foreign Key (`role.id`) | Liên kết phân quyền chức vụ                                       |
+| `role_id`                 | FK(uuid)  | Foreign Key (`role.id`) | Liên kết phân quyền chức vụ                                       |
 | `email`                   | varchar   | UNIQUE                  | Email dùng để đăng nhập và nhận OTP quên mật khẩu                 |
 | `password`                | varchar   |                         | Mật khẩu (đã được mã hóa bảo mật BCrypt)                          |
 | `user_name`               | varchar   |                         | Tên đăng nhập / Tên hiển thị công khai                            |
@@ -73,16 +73,16 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 | Field Name      | Data Type | Key / Constraint              | Description                    |
 | :-------------- | :-------- | :---------------------------- | :----------------------------- |
 | `id`            | PK(uuid)  | Primary Key                   | Định danh bản ghi trung gian   |
-| `role_id`       | FK        | Foreign Key (`role.id`)       | Tham chiếu tới vai trò         |
-| `permission_id` | FK        | Foreign Key (`permission.id`) | Tham chiếu tới quyền tương ứng |
+| `role_id`       | FK(uuid)  | Foreign Key (`role.id`)       | Tham chiếu tới vai trò         |
+| `permission_id` | FK(uuid)  | Foreign Key (`permission.id`) | Tham chiếu tới quyền tương ứng |
 
 #### Bảng `user_block` (Cơ chế cô lập hành vi chặn nhau)
 
 | Field Name   | Data Type | Key / Constraint        | Description                     |
 | :----------- | :-------- | :---------------------- | :------------------------------ |
 | `id`         | PK(uuid)  | Primary Key             | Định danh lượt chặn             |
-| `blocker_id` | FK        | Foreign Key (`user.id`) | ID của người bấm nút Chặn       |
-| `blocked_id` | FK        | Foreign Key (`user.id`) | ID của người bị đối phương chặn |
+| `blocker_id` | FK(uuid)  | Foreign Key (`user.id`) | ID của người bấm nút Chặn       |
+| `blocked_id` | FK(uuid)  | Foreign Key (`user.id`) | ID của người bị đối phương chặn |
 | `created_at` | timestamp |                         | Thời gian thực hiện chặn        |
 
 ---
@@ -94,7 +94,7 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 | Field Name         | Data Type | Key / Constraint            | Description                                    |
 | :----------------- | :-------- | :-------------------------- | :--------------------------------------------- |
 | `id`               | PK(uuid)  | Primary Key                 | Định danh lượt gửi yêu cầu KYC                 |
-| `user_id`          | FK        | Foreign Key (`user.id`)     | Người dùng gửi yêu cầu                         |
+| `user_id`          | FK(uuid)  | Foreign Key (`user.id`)     | Người dùng gửi yêu cầu                         |
 | `kyc_full_name`    | varchar   |                             | Họ và tên thật trên giấy tờ                    |
 | `kyc_address`      | varchar   |                             | Địa chỉ cư trú trên giấy tờ                    |
 | `kyc_card_front`   | varchar   | URL ảnh (Lưu MinIO private) | Ảnh mặt trước CCCD/Hộ chiếu                    |
@@ -107,73 +107,112 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 
 ### 3. Module Product (Quản lý danh mục & Đồ cũ)
 
-#### Bảng `product` (Thông tin sản phẩm)
+### Bảng `product` (Gốc - Thông tin chung)
 
-| Field Name               | Data Type | Key / Constraint            | Description                                           |
-| :----------------------- | :-------- | :-------------------------- | :---------------------------------------------------- |
-| `id`                     | PK(uuid)  | Primary Key                 | Định danh sản phẩm đăng bán                           |
-| `category_id`            | FK        | Foreign Key (`category.id`) | Danh mục chứa sản phẩm _(Đã sửa lỗi chính tả từ ERD)_ |
-| `brand_id`               | FK        | Foreign Key (`brand.id`)    | Thương hiệu của sản phẩm                              |
-| `user_id`                | FK        | Foreign Key (`user.id`)     | Người đăng bán sản phẩm (Seller)                      |
-| `product_title`          | varchar   |                             | Tiêu đề tin đăng bán                                  |
-| `product_price`          | float     |                             | Giá mong muốn bán                                     |
-| `product_description`    | text      |                             | Mô tả chi tiết tình trạng đồ cũ                       |
-| `product_condition_note` | varchar   |                             | Ghi chú nhanh về độ mới (Ví dụ: "95%, xước nhẹ")      |
-| `product_status`         | enum      |                             | Trạng thái (AVAILABLE, SOLD, HIDDEN)                  |
+| Field Name               | Data Type  | Key / Constraint            | Description                                      |
+| :----------------------- | :--------- | :-------------------------- | :----------------------------------------------- |
+| `id`                     | PK(uuid)   | Primary Key                 | Định danh sản phẩm đăng bán                      |
+| `category_id`            | FK(uuid)   | Foreign Key (`category.id`) | Danh mục chứa sản phẩm                           |
+| `brand_id`               | FK(uuid)   | Foreign Key (`brand.id`)    | Thương hiệu của sản phẩm                         |
+| `user_id`                | FK(uuid)   | Foreign Key (`user.id`)     | Người đăng bán sản phẩm (Seller)                 |
+| `product_price`          | float      |                             | Giá mong muốn bán                                |
+| `product_condition_note` | varchar    |                             | Ghi chú nhanh về độ mới (Ví dụ: "95%, xước nhẹ") |
+| `product_status`         | enum       |                             | Trạng thái (AVAILABLE, SOLD, HIDDEN)             |
+| `original_language`      | varchar(5) | Mặc định 'vi'               | Ngôn ngữ gốc lúc đăng bài (vi, ja, en)           |
+
+### Bảng `product_translation` (Bản dịch thông tin sản phẩm)
+
+| Field Name            | Data Type  | Key / Constraint           | Description                                       |
+| :-------------------- | :--------- | :------------------------- | :------------------------------------------------ |
+| `id`                  | PK(uuid)   | Primary Key                | Định danh bản ghi dịch                            |
+| `product_id`          | FK(uuid)   | Foreign Key (`product.id`) | Liên kết tới sản phẩm gốc                         |
+| `language_code`       | varchar(5) | UNIQUE với `product_id`    | Mã ngôn ngữ ("vi", "ja", "en")                    |
+| `product_title`       | varchar    |                            | Tiêu đề tin đăng bán bằng ngôn ngữ này            |
+| `product_description` | text       |                            | Mô tả chi tiết tình trạng đồ cũ bằng ngôn ngữ này |
 
 #### Bảng `image` (Bộ sưu tập ảnh sản phẩm)
 
 | Field Name         | Data Type | Key / Constraint           | Description                                    |
 | :----------------- | :-------- | :------------------------- | :--------------------------------------------- |
 | `id`               | PK(uuid)  | Primary Key                | Định danh ảnh lẻ                               |
-| `product_id`       | FK        | Foreign Key (`product.id`) | Thuộc về sản phẩm nào                          |
+| `product_id`       | FK(uuid)  | Foreign Key (`product.id`) | Thuộc về sản phẩm nào                          |
 | `image_url`        | varchar   | URL ảnh (Lưu MinIO public) | Đường dẫn hình ảnh                             |
 | `image_sort_order` | smallint  |                            | Thứ tự hiển thị (Ảnh 0 thường là ảnh đại diện) |
 
-#### Bảng `category` (Danh mục đệ quy)
+### Bảng `category` (Gốc - Cấu hình đệ quy)
 
 | Field Name      | Data Type | Key / Constraint                  | Description                            |
 | :-------------- | :-------- | :-------------------------------- | :------------------------------------- |
 | `id`            | PK(uuid)  | Primary Key                       | Định danh danh mục sản phẩm            |
-| `ctg_name`      | varchar   |                                   | Tên danh mục (Quần áo, Điện tử...)     |
 | `ctg_image`     | varchar   |                                   | Ảnh đại diện cho danh mục              |
-| `ctg_parent_id` | smallint  | Tham chiếu đệ quy (`category.id`) | ID danh mục cha (Nếu là danh mục con)  |
+| `ctg_parent_id` | FK(uuid)  | Tham chiếu đệ quy (`category.id`) | ID danh mục cha (Nếu là danh mục con)  |
 | `ctg_level`     | smallint  |                                   | Cấp độ phân tách danh mục (1, 2, 3...) |
 
-#### Bảng `brand` (Thương hiệu sản phẩm)
+### Bảng `category_translation` (Bản dịch danh mục)
 
-| Field Name    | Data Type | Key / Constraint | Description                            |
-| :------------ | :-------- | :--------------- | :------------------------------------- |
-| `id`          | PK(uuid)  | Primary Key      | Định danh thương hiệu                  |
-| `brand_name`  | varchar   |                  | Tên thương hiệu (Nike, Sony, Apple...) |
-| `brand_image` | varchar   |                  | Logo thương hiệu                       |
+| Field Name      | Data Type  | Key / Constraint            | Description                                     |
+| :-------------- | :--------- | :-------------------------- | :---------------------------------------------- |
+| `id`            | PK(uuid)   | Primary Key                 | Định danh bản ghi dịch                          |
+| `category_id`   | FK(uuid)   | Foreign Key (`category.id`) | Liên kết tới danh mục gốc                       |
+| `language_code` | varchar(5) | UNIQUE với `category_id`    | Mã ngôn ngữ ("vi", "ja", "en")                  |
+| `ctg_name`      | varchar    |                             | Tên danh mục đã dịch (Ví dụ: "家電", "Điện tử") |
+
+### Bảng `brand` (Gốc - Chỉ lưu Logo)
+
+| Field Name    | Data Type | Key / Constraint | Description           |
+| :------------ | :-------- | :--------------- | :-------------------- |
+| `id`          | PK(uuid)  | Primary Key      | Định danh thương hiệu |
+| `brand_image` | varchar   |                  | Logo thương hiệu      |
+
+### Bảng `brand_translation` (Bản dịch tên thương hiệu - Hỗ trợ tìm kiếm Katakana)
+
+| Field Name      | Data Type  | Key / Constraint         | Description                                      |
+| :-------------- | :--------- | :----------------------- | :----------------------------------------------- |
+| `id`            | PK(uuid)   | Primary Key              | Định danh bản ghi dịch                           |
+| `brand_id`      | FK(uuid)   | Foreign Key (`brand.id`) | Liên kết tới thương hiệu gốc                     |
+| `language_code` | varchar(5) | UNIQUE với `brand_id`    | Mã ngôn ngữ ("vi", "ja", "en")                   |
+| `brand_name`    | varchar    |                          | Tên thương hiệu dịch (Ví dụ: "Nike" vs "ナイキ") |
 
 #### Hệ thống thuộc tính động (EAV Pattern)
 
-_Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình trạng riêng biệt cho từng loại sản phẩm:_
+### Bảng `attribute_type` (Gốc - Định danh nhóm)
 
-##### Bảng `attribute_type` (Loại thuộc tính)
+| Field Name | Data Type | Key / Constraint | Description               |
+| :--------- | :-------- | :--------------- | :------------------------ |
+| `id`       | PK(uuid)  | Primary Key      | Định danh loại thuộc tính |
 
-| Field Name       | Data Type | Key / Constraint | Description                                             |
-| :--------------- | :-------- | :--------------- | :------------------------------------------------------ |
-| `id`             | PK(uuid)  | Primary Key      | Định danh loại thuộc tính (Ví dụ: "Kích cỡ", "Màu sắc") |
-| `attribute_name` | varchar   |                  | Tên thuộc tính hiển thị                                 |
+### Bảng `attribute_type_translation` (Bản dịch Loại thuộc tính)
 
-##### Bảng `attribute_option` (Giá trị lựa chọn của thuộc tính)
+| Field Name          | Data Type  | Key / Constraint                  | Description                                        |
+| :------------------ | :--------- | :-------------------------------- | :------------------------------------------------- |
+| `id`                | PK(uuid)   | Primary Key                       | Định danh bản ghi dịch                             |
+| `attribute_type_id` | FK(uuid)   | Foreign Key (`attribute_type.id`) | Liên kết tới loại thuộc tính gốc                   |
+| `language_code`     | varchar(5) | UNIQUE với `attribute_type_id`    | Mã ngôn ngữ ("vi", "ja", "en")                     |
+| `attribute_name`    | varchar    |                                   | Tên thuộc tính hiển thị (Ví dụ: "Màu sắc" vs "色") |
 
-| Field Name              | Data Type | Key / Constraint                  | Description                                           |
-| :---------------------- | :-------- | :-------------------------------- | :---------------------------------------------------- |
-| `id`                    | PK(uuid)  | Primary Key                       | Định danh cấu hình option                             |
-| `attribute_type_id`     | smallint  | Foreign Key (`attribute_type.id`) | Thuộc về nhóm thuộc tính nào                          |
-| `attribute_option_name` | varchar   |                                   | Giá trị cụ thể (Ví dụ: "Size L", "Màu Đỏ", "Mới 99%") |
+### Bảng `attribute_option` (Gốc - Định danh giá trị)
 
-##### Bảng `product_attribute` (Bảng trung gian ánh xạ thuộc tính vào sản phẩm)
+| Field Name          | Data Type | Key / Constraint                  | Description                  |
+| :------------------ | :-------- | :-------------------------------- | :--------------------------- |
+| `id`                | PK(uuid)  | Primary Key                       | Định danh cấu hình option    |
+| `attribute_type_id` | FK(uuid)  | Foreign Key (`attribute_type.id`) | Thuộc về nhóm thuộc tính nào |
 
-| Field Name            | Data Type | Key / Constraint                    | Description               |
-| :-------------------- | :-------- | :---------------------------------- | :------------------------ |
-| `id`                  | PK(uuid)  | Primary Key                         | Định danh liên kết        |
-| `product_id`          | FK        | Foreign Key (`product.id`)          | Gán vào sản phẩm mục tiêu |
-| `attribute_option_id` | smallint  | Foreign Key (`attribute_option.id`) | Giá trị được áp dụng      |
+### Bảng `attribute_option_translation` (Bản dịch Giá trị lựa chọn)
+
+| Field Name              | Data Type  | Key / Constraint                    | Description                                      |
+| :---------------------- | :--------- | :---------------------------------- | :----------------------------------------------- |
+| `id`                    | PK(uuid)   | Primary Key                         | Định danh bản ghi dịch                           |
+| `attribute_option_id`   | FK(uuid)   | Foreign Key (`attribute_option.id`) | Liên kết tới option gốc                          |
+| `language_code`         | varchar(5) | UNIQUE với `attribute_option_id`    | Mã ngôn ngữ ("vi", "ja", "en")                   |
+| `attribute_option_name` | varchar    |                                     | Giá trị dịch cụ thể (Ví dụ: "Size L", "Mới 99%") |
+
+### Bảng `product_attribute` (Bảng trung gian ánh xạ vào sản phẩm)
+
+| Field Name            | Data Type | Key / Constraint                    | Description                   |
+| :-------------------- | :-------- | :---------------------------------- | :---------------------------- |
+| `id`                  | PK(uuid)  | Primary Key                         | Định danh liên kết            |
+| `product_id`          | FK(uuid)  | Foreign Key (`product.id`)          | Gán vào sản phẩm mục tiêu     |
+| `attribute_option_id` | FK(uuid)  | Foreign Key (`attribute_option.id`) | Giá trị cấu hình được áp dụng |
 
 ---
 
@@ -185,7 +224,7 @@ _Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình tr
 | :-------------------------- | :-------- | :------------------------- | :----------------------------------------------------------- |
 | `id`                        | PK(uuid)  | Primary Key                | Định danh đơn hàng                                           |
 | `user_id`                   | smallint  | Foreign Key (`user.id`)    | Người thực hiện mua hàng (Buyer)                             |
-| `product_id`                | FK        | Foreign Key (`product.id`) | Xác định chính xác món đồ cũ độc nhất được mua trong đơn này |
+| `product_id`                | FK(uuid)  | Foreign Key (`product.id`) | Xác định chính xác món đồ cũ độc nhất được mua trong đơn này |
 | `order_total_amount`        | float     |                            | Tổng số tiền của đơn hàng                                    |
 | `order_status`              | enum      |                            | Trạng thái (PENDING, PAID_ESCROW, COMPLETED, CANCELLED)      |
 | `order_shipping_name`       | varchar   |                            | Tên người nhận hàng                                          |
@@ -201,7 +240,7 @@ _Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình tr
 | Field Name                 | Data Type | Key / Constraint         | Description                                                 |
 | :------------------------- | :-------- | :----------------------- | :---------------------------------------------------------- |
 | `id`                       | PK(uuid)  | Primary Key              | Định danh giao dịch                                         |
-| `order_id`                 | FK        | Foreign Key (`order.id`) | Liên kết tới đơn hàng mua                                   |
+| `order_id`                 | FK(uuid)  | Foreign Key (`order.id`) | Liên kết tới đơn hàng mua                                   |
 | `stripe_payment_intent_id` | varchar   | Mã bắt buộc từ Stripe    | Stripe Payment Intent ID (`pi_...`) phục vụ Escrow giữ tiền |
 | `payment_amount`           | float     |                          | Số tiền thực tế đã quẹt thẻ                                 |
 | `payment_currency`         | enum      | Ví dụ: JPY, USD          | Đơn vị tiền tệ giao dịch                                    |
@@ -217,20 +256,20 @@ _Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình tr
 | Field Name        | Data Type | Key / Constraint                 | Description                                       |
 | :---------------- | :-------- | :------------------------------- | :------------------------------------------------ |
 | `id`              | PK(uuid)  | Primary Key                      | Định danh bình luận                               |
-| `product_id`      | FK        | Foreign Key (`product.id`)       | Bình luận tại trang sản phẩm nào                  |
-| `user_id`         | FK        | Foreign Key (`user.id`)          | Người viết bình luận                              |
+| `product_id`      | FK(uuid)  | Foreign Key (`product.id`)       | Bình luận tại trang sản phẩm nào                  |
+| `user_id`         | FK(uuid)  | Foreign Key (`user.id`)          | Người viết bình luận                              |
 | `comment_content` | text      |                                  | Nội dung text trao đổi                            |
-| `parent_id`       | FK        | Tham chiếu đệ quy (`comment.id`) | Phục vụ luồng phản hồi lồng nhau (Thread comment) |
+| `parent_id`       | FK(uuid)  | Tham chiếu đệ quy (`comment.id`) | Phục vụ luồng phản hồi lồng nhau (Thread comment) |
 
 #### Bảng `review` (Đánh giá uy tín sau giao dịch thành công)
 
 | Field Name       | Data Type | Key / Constraint           | Description                                    |
 | :--------------- | :-------- | :------------------------- | :--------------------------------------------- |
 | `id`             | PK(uuid)  | Primary Key                | Định danh lượt đánh giá                        |
-| `order_id`       | FK        | Foreign Key (`order.id`)   | Đánh giá cho đơn hàng nào                      |
-| `product_id`     | FK        | Foreign Key (`product.id`) | Sản phẩm nhận đánh giá                         |
-| `reviewer_id`    | FK        | Foreign Key (`user.id`)    | Người chấm điểm và viết review                 |
-| `reviewee_id`    | FK        | Foreign Key (`user.id`)    | Đối tượng được chấm (Người bán hoặc Người mua) |
+| `order_id`       | FK(uuid)  | Foreign Key (`order.id`)   | Đánh giá cho đơn hàng nào                      |
+| `product_id`     | FK(uuid)  | Foreign Key (`product.id`) | Sản phẩm nhận đánh giá                         |
+| `reviewer_id`    | FK(uuid)  | Foreign Key (`user.id`)    | Người chấm điểm và viết review                 |
+| `reviewee_id`    | FK(uuid)  | Foreign Key (`user.id`)    | Đối tượng được chấm (Người bán hoặc Người mua) |
 | `review_rating`  | smallint  | Thang điểm 1 - 5           | Số sao chấm điểm                               |
 | `review_comment` | text      |                            | Nhận xét chi tiết                              |
 
@@ -239,8 +278,8 @@ _Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình tr
 | Field Name        | Data Type | Key / Constraint        | Description                         |
 | :---------------- | :-------- | :---------------------- | :---------------------------------- |
 | `id`              | PK(uuid)  | Primary Key             | Định danh tin nhắn lẻ               |
-| `msg_sender_id`   | FK        | Foreign Key (`user.id`) | Người gửi tin                       |
-| `msg_receiver_id` | FK        | Foreign Key (`user.id`) | Người nhận tin                      |
+| `msg_sender_id`   | FK(uuid)  | Foreign Key (`user.id`) | Người gửi tin                       |
+| `msg_receiver_id` | FK(uuid)  | Foreign Key (`user.id`) | Người nhận tin                      |
 | `msg_content`     | text      |                         | Nội dung đoạn chat                  |
 | `msg_is_read`     | boolean   |                         | Trạng thái đầu nhận đã đọc hay chưa |
 
@@ -249,7 +288,7 @@ _Giải pháp xử lý linh hoạt việc tùy biến Size, Màu sắc, Tình tr
 | Field Name     | Data Type | Key / Constraint        | Description                                     |
 | :------------- | :-------- | :---------------------- | :---------------------------------------------- |
 | `id`           | PK(uuid)  | Primary Key             | Định danh thông báo                             |
-| `user_id`      | FK        | Foreign Key (`user.id`) | Người dùng nhận thông báo                       |
+| `user_id`      | FK(uuid)  | Foreign Key (`user.id`) | Người dùng nhận thông báo                       |
 | `noti_title`   | varchar   |                         | Tiêu đề thông báo nhanh                         |
 | `noti_content` | text      |                         | Nội dung chi tiết thông báo hệ thống            |
 | `noti_type`    | varchar   |                         | Phân loại thông báo (SYSTEM, ORDER, INFOMATION) |

@@ -41,6 +41,9 @@
 
 - **Architecture Boundary:** Tuân thủ cấu trúc Package-by-Feature (`modules/[feature_name]`). Code của module nào phải nằm trọn vẹn trong module đó.
 - **Dependency Injection Guard:** Tuyệt đối không cho phép một Module này `@Autowired` hoặc Inject trực tiếp `@Repository` của một Module khác. Mọi tương tác liên thông bắt buộc phải đi qua tầng `@Service` tương ứng để đảm bảo tính toàn vẹn dữ liệu.
+- **BaseEntity Extension Constraint:** - 100% các lớp `@Entity` (ngoại trừ các bảng trung gian thuần túy của mối quan hệ Many-to-Many) không được tự định nghĩa trường `id` hay các trường thời gian một cách thủ công.
+  - Tất cả bắt buộc phải `extends BaseEntity` để kế thừa cấu trúc gồm 7 trường chuẩn hóa: `id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `deleted_at`, và `deleted_by`.
+  - Tích hợp các Annotation `@SoftDelete` hoặc `@Where` của Hibernate để tự động lọc bỏ các bản ghi có `deleted_at != null` trong mọi câu lệnh truy vấn (Select).
 - **Data Transfer Objects (DTO):** Không bao giờ trả trực tiếp thực thể Database (`@Entity`) về cho client ở tầng Controller. Mọi Request/Response phải được map qua các lớp DTO riêng biệt để bảo mật thông tin.
 - **Lombok Usage Caution:** Sử dụng `@Getter`, `@Setter` và `@RequiredArgsConstructor` thay cho `@Data`. Tuyệt đối không dùng `@EqualsAndHashCode` hoặc `@ToString` trên các Entity có mối quan hệ `@OneToMany` hoặc `@ManyToMany` để tránh lỗi tràn bộ nhớ (Infinite Loop / StackOverflowError).
 - **Validation:** Bắt buộc sử dụng các Annotation đi kèm như `@Valid`, `@NotBlank`, `@Size`, `@Min` tại tầng Controller để chặn đứng dữ liệu rác ngay ở cửa ngõ API.

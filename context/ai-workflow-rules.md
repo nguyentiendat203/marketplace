@@ -47,4 +47,4 @@ Trước khi báo cáo hoàn thành và chuyển sang tính năng tiếp theo, A
 
 1. Tính năng hiện tại chạy ổn định end-to-end từ API BE đến giao diện FE (trong phạm vi test).
 2. Không vi phạm bất kỳ quy tắc tối kỵ nào trong mục `Architectural Invariants`.
-3. Dự án build không lỗi (Chạy thành công lệnh kiểm tra build của Backend như `mvn clean compile` hoặc `./gradlew compileJava`, và Frontend `npm run build`).
+3. Dự án build không lỗi .
