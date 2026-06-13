@@ -2,7 +2,6 @@ package vn.datnguy3n.marketplace.modules.payment;
 
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import vn.datnguy3n.marketplace.common.ApiResponse;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
 import vn.datnguy3n.marketplace.modules.payment.entity.Payment;
 
@@ -21,15 +19,15 @@ import vn.datnguy3n.marketplace.modules.payment.entity.Payment;
 public class PaymentController extends BaseCRUDController<Payment> {
 
     private final PaymentService paymentService;
+
     public PaymentController(PaymentService paymentService) {
         super(paymentService);
         this.paymentService = paymentService;
     }
 
-
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<ApiResponse<Payment>> getByOrder(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(ApiResponse.ok("Payment fetched", HttpStatus.OK.value(), paymentService.getByOrderId(orderId)));
+    public ResponseEntity<Payment> getByOrder(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(paymentService.getByOrderId(orderId));
     }
 
     @PostMapping("/webhook")
@@ -41,7 +39,7 @@ public class PaymentController extends BaseCRUDController<Payment> {
     }
 
     @PostMapping("/order/{orderId}/refund")
-    public ResponseEntity<ApiResponse<Payment>> refund(@PathVariable UUID orderId) {
-        return ResponseEntity.ok(ApiResponse.ok("Refund initiated", HttpStatus.OK.value(), paymentService.refund(orderId)));
+    public ResponseEntity<Payment> refund(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(paymentService.refund(orderId));
     }
 }

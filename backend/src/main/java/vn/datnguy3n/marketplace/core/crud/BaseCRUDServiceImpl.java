@@ -1,18 +1,23 @@
 package vn.datnguy3n.marketplace.core.crud;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
+@Service
 public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseCRUDService<T> {
 
-    protected final JpaRepository<T, UUID> repository;
-    protected BaseCRUDServiceImpl(JpaRepository<T, UUID> repository) {
+    protected final BaseRepository<T> repository;
+
+    protected BaseCRUDServiceImpl(BaseRepository<T> repository) {
         this.repository = repository;
     }
 
@@ -39,14 +44,28 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
     @Transactional(readOnly = true)
     @Override
     public T getById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Entity not found with id: " + id));
+        Optional<T> entity = repository.findById(id);
+        if(entity.isPresent()) {
+            return entity.get();
+        }
+        throw new RuntimeException("Entity not found with id: " + id);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Page<T> getAll(Pageable pageable) {
-        return repository.findAll(pageable);
+    public ResultPaginationResponse getAll(Specification<T> spec, Pageable pageable) {
+        Page<T> page = repository.findAll(spec, pageable);
+
+        ResultPaginationResponse.Meta meta = new ResultPaginationResponse.Meta();
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(page.getTotalPages());
+        meta.setTotal(page.getTotalElements());
+
+        ResultPaginationResponse result = new ResultPaginationResponse();
+        result.setMeta(meta);
+        result.setResult(page.getContent());
+        return result;
     }
 
     @Transactional

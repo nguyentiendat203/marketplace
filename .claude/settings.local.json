@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(xargs cat)",
-      "Bash(./gradlew compileJava)"
+      "Bash(./gradlew compileJava)",
+      "Bash(find ~/.gradle/caches -name \"jackson-databind-*.jar\" 2>/dev/null | head -5)",
+      "Read(//Users/nguyentiendat/.gradle/caches/**)",
+      "Bash(jar tf *)",
+      "Bash(./gradlew dependencies *)"
     ]
   }
 }

@@ -2,10 +2,11 @@ package vn.datnguy3n.marketplace.core.crud;
 
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,45 +14,49 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.turkraft.springfilter.boot.Filter;
+
 import vn.datnguy3n.marketplace.common.ApiResponse;
 import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
+@Controller
 public abstract class BaseCRUDController<T extends BaseEntity> {
 
-    protected final  BaseCRUDService<T> getService ;
+    protected final BaseCRUDService<T> getService;
+
     public BaseCRUDController(BaseCRUDService<T> getService) {
         this.getService = getService;
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<T>> create(@RequestBody T entity) {
-        
+    public ResponseEntity<T> create(@RequestBody T entity) {
         T created = getService.create(entity);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok("Created successfully", HttpStatus.CREATED.value(), created));
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<T>> update(@PathVariable UUID id, @RequestBody T entity) {
+    public ResponseEntity<T> update(@PathVariable UUID id, @RequestBody T entity) {
         T updated = getService.update(id, entity);
-        return ResponseEntity.ok(ApiResponse.ok("Updated successfully", HttpStatus.OK.value(), updated));
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<T>> getById(@PathVariable UUID id) {
+    public ResponseEntity<T> getById(@PathVariable UUID id) {
         T found = getService.getById(id);
-        return ResponseEntity.ok(ApiResponse.ok("Fetched successfully", HttpStatus.OK.value(), found));
+        return ResponseEntity.ok(found);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<T>>> getAll(Pageable pageable) {
-        Page<T> page = getService.getAll(pageable);
-        return ResponseEntity.ok(ApiResponse.ok("Fetched successfully", HttpStatus.OK.value(), page));
+    public ResponseEntity<ResultPaginationResponse> getAll(@Filter Specification<T> spec,
+            Pageable pageable) {
+        ResultPaginationResponse result = getService.getAll(spec, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
         getService.delete(id);
-        return ResponseEntity.ok(ApiResponse.ok("Deleted successfully", HttpStatus.OK.value(), null));
+        return ResponseEntity.ok(null);
     }
 }

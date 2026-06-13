@@ -12,21 +12,9 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
-    public static <T> ApiResponse<T> ok(String message,int statusCode, T data) {
-        ApiResponse<T> res = new ApiResponse<>();
-        res.statusCode = statusCode;
-        res.success = true;
-        res.message = message;
-        res.data = data;
-        return res;
+    public ApiResponse() {
+       
     }
 
-    public static <T> ApiResponse<T> fail(String message, int statusCode) {
-        ApiResponse<T> res = new ApiResponse<>();
-        res.statusCode = statusCode;
-        res.success = false;
-        res.message = message;
-        res.data = null;
-        return res;
-    }
+   
 }

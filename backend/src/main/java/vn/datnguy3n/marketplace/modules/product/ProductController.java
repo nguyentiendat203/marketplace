@@ -27,12 +27,12 @@ public class ProductController extends BaseCRUDController<Product> {
 
 
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<ApiResponse<List<Product>>> getBySeller(@PathVariable UUID sellerId) {
-        return ResponseEntity.ok(ApiResponse.ok("Products fetched", HttpStatus.OK.value(), productService.getBySeller(sellerId)));
+    public ResponseEntity<List<Product>> getBySeller(@PathVariable UUID sellerId) {
+        return ResponseEntity.ok(productService.getBySeller(sellerId));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResponse<List<Product>>> getByCategory(@PathVariable UUID categoryId) {
-        return ResponseEntity.ok(ApiResponse.ok("Products fetched", HttpStatus.OK.value(), productService.getByCategory(categoryId)));
+    public ResponseEntity<List<Product>> getByCategory(@PathVariable UUID categoryId) {
+        return ResponseEntity.ok(productService.getByCategory(categoryId));
     }
 }
