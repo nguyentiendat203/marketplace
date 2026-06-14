@@ -42,7 +42,7 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         apiResponse.setStatusCode(statusCode);
 
 
-        if(statusCode > 400) {
+        if (statusCode >= 400) {
             return body;
         } else {
             apiResponse.setSuccess(true);

@@ -6,11 +6,13 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import vn.datnguy3n.marketplace.common.BaseEntity;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
+import vn.datnguy3n.marketplace.core.exception.BusinessException;
 
 @Service
 public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseCRUDService<T> {
@@ -45,10 +47,10 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
     @Override
     public T getById(UUID id) {
         Optional<T> entity = repository.findById(id);
-        if(entity.isPresent()) {
+        if (entity.isPresent()) {
             return entity.get();
         }
-        throw new RuntimeException("Entity not found with id: " + id);
+        throw new BusinessException("Entity not found with id: " + id, HttpStatus.NOT_FOUND);
     }
 
     @Transactional(readOnly = true)

@@ -15,6 +15,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
+import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,4 +52,19 @@ public abstract class BaseEntity {
 
     @Column( length = 36)
     private UUID deletedBy;
+
+    @PrePersist
+        public void handleBeforeCreate() {
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
+    @PreRemove
+    public void handleBeforeDelete() {
+        this.deletedAt = Instant.now();
+    }
 }

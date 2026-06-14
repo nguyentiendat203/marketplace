@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.turkraft.springfilter.boot.Filter;
 
-import vn.datnguy3n.marketplace.common.ApiResponse;
 import vn.datnguy3n.marketplace.common.BaseEntity;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
-@Controller
 public abstract class BaseCRUDController<T extends BaseEntity> {
 
     protected final BaseCRUDService<T> getService;
