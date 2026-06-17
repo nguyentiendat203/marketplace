@@ -1,7 +1,11 @@
 package vn.datnguy3n.marketplace.core.exception;
 
+import java.util.List;
+
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -11,6 +15,16 @@ import vn.datnguy3n.marketplace.common.ApiResponse;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Bắt lỗi validation @Valid và trả về dữ liệu lỗi chi tiết cho client
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+
+        return  buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST, String.join("; ", errors));
+    }
 
     @ExceptionHandler(value = BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException ex) {

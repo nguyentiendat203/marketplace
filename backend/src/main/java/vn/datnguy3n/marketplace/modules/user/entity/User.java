@@ -43,4 +43,7 @@ public class User extends BaseEntity {
 
     @Column(name = "is_kyc_verified", nullable = false)
     private boolean kycVerified = false;
+
+    @Column(columnDefinition = "TEXT")
+    private String refreshToken;
 }

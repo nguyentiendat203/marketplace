@@ -1,16 +1,15 @@
 package vn.datnguy3n.marketplace.modules.auth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import vn.datnguy3n.marketplace.modules.auth.dto.AuthResponse;
 import vn.datnguy3n.marketplace.modules.auth.dto.LoginRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.RegisterRequest;
 
 public interface AuthService {
 
-    AuthResponse login(LoginRequest request);
+    AuthResponse login(LoginRequest request, HttpServletResponse response);
 
-    AuthResponse register(RegisterRequest request);
+    AuthResponse register(RegisterRequest request, HttpServletResponse response);
 
-    void forgotPassword(String email);
-
-    void changePassword(String userId, String oldPassword, String newPassword);
+    AuthResponse refresh(String refreshToken, HttpServletResponse response);
 }

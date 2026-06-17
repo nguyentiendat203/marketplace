@@ -1,0 +1,6 @@
+application:
+  security:
+    jwt:
+      secret-key: "wSywJ96n7+Xi+x7+cFSq5+0kTdIebkYqNREYIF7E9TVsB0KiZPWecZ8seyO3iaUi8a1Hyb2wPYI8gmkINfM0Og=="
+      access-token-validity-in-seconds: 900
+      refresh-token-validity-in-seconds: 2592000

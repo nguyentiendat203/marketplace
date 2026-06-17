@@ -8,7 +8,9 @@
       "Bash(jar tf *)",
       "Bash(./gradlew dependencies *)",
       "Bash(./mvnw compile *)",
-      "Bash(mvn compile *)"
+      "Bash(mvn compile *)",
+      "Bash(openssl rand *)",
+      "Bash(jar -tf /Users/nguyentiendat/.gradle/caches/modules-2/files-2.1/org.springframework.security/spring-security-web/7.0.5/e78938fc30d0cbf40996f7e7d5d955b15bacfe01/spring-security-web-7.0.5.jar)"
     ]
   }
 }

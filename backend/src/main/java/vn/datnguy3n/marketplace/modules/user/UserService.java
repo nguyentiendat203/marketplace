@@ -1,5 +1,8 @@
 package vn.datnguy3n.marketplace.modules.user;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
@@ -8,4 +11,8 @@ public interface UserService extends BaseCRUDService<User> {
     User findEntityByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    void updateRefreshToken(UUID userId, String refreshToken);
+
+    Optional<User> findByRefreshToken(String refreshToken);
 }
