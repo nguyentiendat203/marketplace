@@ -1,5 +1,6 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -10,16 +11,15 @@ import lombok.Setter;
 import vn.datnguy3n.marketplace.common.BaseEntity;
 
 @Entity
-@Table(name = "product_attributes")
+@Table(name = "attribute_options")
 @Getter
 @Setter
-public class ProductAttribute extends BaseEntity {
+public class AttributeOption extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "attribute_type_id", nullable = false)
+    private AttributeType attributeType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "attribute_option_id", nullable = false)
-    private AttributeOption attributeOption;
+    @Column(name = "attribute_option_name", nullable = false, length = 255)
+    private String attributeOptionName;
 }

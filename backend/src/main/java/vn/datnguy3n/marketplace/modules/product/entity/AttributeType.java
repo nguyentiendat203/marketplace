@@ -8,13 +8,11 @@ import lombok.Setter;
 import vn.datnguy3n.marketplace.common.BaseEntity;
 
 @Entity
-@Table(name = "brands")
+@Table(name = "attribute_types")
 @Getter
 @Setter
-public class Brand extends BaseEntity {
+public class AttributeType extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 150)
-    private String name;
-
-    private String logoUrl;
+    @Column(name = "attribute_name", nullable = false, length = 100)
+    private String attributeName;
 }

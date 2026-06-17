@@ -1,7 +1,5 @@
 package vn.datnguy3n.marketplace.modules.user.entity;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,7 +13,6 @@ import vn.datnguy3n.marketplace.modules.role.entity.Role;
 
 @Entity
 @Table(name = "users")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class User extends BaseEntity {
@@ -38,12 +35,15 @@ public class User extends BaseEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean active = true;
+    @Column(name = "is_activated", nullable = false)
+    private boolean activated = false;
 
     @Column(name = "is_kyc_verified", nullable = false)
     private boolean kycVerified = false;
 
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
+
+    @Column(name = "activation_key", unique = true)
+    private String activationKey;
 }

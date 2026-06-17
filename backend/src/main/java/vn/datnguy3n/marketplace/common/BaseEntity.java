@@ -3,6 +3,8 @@ package vn.datnguy3n.marketplace.common;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLRestriction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @MappedSuperclass
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public abstract class BaseEntity {

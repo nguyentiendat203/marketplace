@@ -1,7 +1,5 @@
 package vn.datnguy3n.marketplace.modules.user.entity;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -17,7 +15,6 @@ import vn.datnguy3n.marketplace.common.BaseEntity;
     name = "user_blocks",
     uniqueConstraints = @UniqueConstraint(columnNames = {"blocker_id", "blocked_id"})
 )
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class UserBlock extends BaseEntity {

@@ -8,12 +8,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.SQLRestriction;
 import vn.datnguy3n.marketplace.common.BaseEntity;
 
 @Entity
 @Table(name = "categories")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class Category extends BaseEntity {

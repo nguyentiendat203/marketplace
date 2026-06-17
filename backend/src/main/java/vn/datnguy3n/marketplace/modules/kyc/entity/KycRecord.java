@@ -1,7 +1,5 @@
 package vn.datnguy3n.marketplace.modules.kyc.entity;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,7 +13,6 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "kyc_records")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class KycRecord extends BaseEntity {

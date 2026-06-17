@@ -2,8 +2,6 @@ package vn.datnguy3n.marketplace.modules.order.entity;
 
 import java.math.BigDecimal;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +18,6 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "orders")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class Order extends BaseEntity {

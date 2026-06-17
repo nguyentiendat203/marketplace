@@ -2,8 +2,6 @@ package vn.datnguy3n.marketplace.modules.payment.entity;
 
 import java.math.BigDecimal;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,7 +17,6 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity
 @Table(name = "payments")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class Payment extends BaseEntity {

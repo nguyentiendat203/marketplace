@@ -2,8 +2,6 @@ package vn.datnguy3n.marketplace.modules.role.entity;
 
 import java.util.List;
 
-import org.hibernate.annotations.SQLRestriction;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
@@ -20,7 +18,6 @@ import vn.datnguy3n.marketplace.modules.permission.entity.Permission;
 
 @Entity
 @Table(name = "roles")
-@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 public class Role extends BaseEntity {
