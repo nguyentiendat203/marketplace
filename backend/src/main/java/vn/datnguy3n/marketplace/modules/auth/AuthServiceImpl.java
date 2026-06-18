@@ -1,8 +1,12 @@
 package vn.datnguy3n.marketplace.modules.auth;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -23,22 +27,28 @@ import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.auth.dto.AuthResponse;
 import vn.datnguy3n.marketplace.modules.auth.dto.LoginRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.RegisterRequest;
+import vn.datnguy3n.marketplace.modules.mail.MailService;
 import vn.datnguy3n.marketplace.modules.role.RoleService;
 import vn.datnguy3n.marketplace.modules.role.entity.Role;
 import vn.datnguy3n.marketplace.modules.user.UserService;
+import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private static final String DEFAULT_ROLE = "BUYER";
+    private static final String DEFAULT_ROLE = "ROLE_USER";
 
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final RoleService roleService;
     private final JwtProperties jwtProperties;
+    private final MailService mailService;
+
+    @Value("${application.mail.activation-ttl-minutes}")
+    private long ttlMinutes;
 
     @Override
     @Transactional
@@ -56,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
             userService.updateRefreshToken(user.getId(), refreshToken);
             setRefreshTokenCookie(httpResponse, refreshToken);
 
-            return buildResponse(accessToken, refreshToken, user);
+            return buildAuthResponse(accessToken, refreshToken, user);
         } catch (BadCredentialsException e) {
             throw new BusinessException("Email hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED);
         }
@@ -64,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponse register(RegisterRequest request, HttpServletResponse httpResponse) {
+    public String register(RegisterRequest request) {
         if (userService.existsByEmail(request.getEmail())) {
             throw new BusinessException("Email đã được sử dụng", HttpStatus.CONFLICT);
         }
@@ -78,21 +88,34 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(request.getPassword());
         user.setFullName(request.getFullName());
         user.setRole(defaultRole);
+        user.setActivated(false);
+
         User savedUser = userService.create(user);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser.getEmail(), null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + defaultRole.getName().toUpperCase()))
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        mailService.sendActivationEmail(savedUser);
 
-        String accessToken = tokenProvider.createToken(authentication, jwtProperties.getAccessTokenValidityInSeconds());
-        String refreshToken = tokenProvider.createToken(authentication, jwtProperties.getRefreshTokenValidityInSeconds());
+        return "Đăng ký thành công! Vui lòng kiểm tra email của bạn để thực hiện xác thực kích hoạt tài khoản.";
+    }
 
-        userService.updateRefreshToken(savedUser.getId(), refreshToken);
-        setRefreshTokenCookie(httpResponse, refreshToken);
+    @Override
+    @Transactional(noRollbackFor = BusinessException.class) // ✨ Thêm noRollbackFor vào đây
+    public UserResponse activate(String key) {
+        User user = userService.findByActivationKey(key)
+                .orElseThrow(() -> new BusinessException(
+                        "Mã kích hoạt không hợp lệ hoặc đã được sử dụng!", HttpStatus.BAD_REQUEST));
 
-        return buildResponse(accessToken, refreshToken, savedUser);
+        long minutesElapsed = Duration.between(user.getCreatedAt(), Instant.now()).toMinutes();
+        if (minutesElapsed > ttlMinutes) {
+            userService.delete(user.getId());
+            throw new BusinessException(
+                    "Liên kết xác thực đã hết hạn! Vui lòng thực hiện đăng ký lại tài khoản.", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setActivated(true);
+        user.setActivationKey(null);
+        User activatedUser = userService.saveUser(user);
+
+        return toUserResponse(activatedUser);
     }
 
     @Override
@@ -123,7 +146,7 @@ public class AuthServiceImpl implements AuthService {
         userService.updateRefreshToken(user.getId(), newRefreshToken);
         setRefreshTokenCookie(httpResponse, newRefreshToken);
 
-        return buildResponse(newAccessToken, newRefreshToken, user);
+        return buildAuthResponse(newAccessToken, newRefreshToken, user);
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
@@ -137,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
-    private AuthResponse buildResponse(String accessToken, String refreshToken, User user) {
+    private AuthResponse buildAuthResponse(String accessToken, String refreshToken, User user) {
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo();
         userInfo.setId(user.getId());
         userInfo.setEmail(user.getEmail());
@@ -148,6 +171,22 @@ public class AuthServiceImpl implements AuthService {
         response.setAccessToken(accessToken);
         response.setRefreshToken(refreshToken);
         response.setUser(userInfo);
+        return response;
+    }
+
+    private UserResponse toUserResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setFullName(user.getFullName());
+        response.setAvatarUrl(user.getAvatarUrl());
+        response.setPhone(user.getPhone());
+        response.setRoleId(user.getRole() != null ? user.getRole().getId() : null);
+        response.setActive(user.isActivated());
+        response.setKycVerified(user.isKycVerified());
+        response.setCreatedAt(user.getCreatedAt() != null
+                ? LocalDateTime.ofInstant(user.getCreatedAt(), ZoneId.systemDefault())
+                : null);
         return response;
     }
 }

@@ -12,4 +12,6 @@ public interface UserRepository extends BaseRepository<User> {
     boolean existsByEmail(String email);
 
     Optional<User> findByRefreshToken(String refreshToken);
+
+    Optional<User> findByActivationKey(String activationKey);
 }

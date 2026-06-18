@@ -4,12 +4,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import vn.datnguy3n.marketplace.modules.auth.dto.AuthResponse;
 import vn.datnguy3n.marketplace.modules.auth.dto.LoginRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.RegisterRequest;
+import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 
 public interface AuthService {
 
     AuthResponse login(LoginRequest request, HttpServletResponse response);
 
-    AuthResponse register(RegisterRequest request, HttpServletResponse response);
+    String register(RegisterRequest request);
 
     AuthResponse refresh(String refreshToken, HttpServletResponse response);
+
+    UserResponse activate(String key);
 }

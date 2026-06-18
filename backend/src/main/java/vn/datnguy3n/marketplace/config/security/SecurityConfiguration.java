@@ -31,7 +31,8 @@ public class SecurityConfiguration {
                     // "/api/v1/users/**",
                     "/api/v1/auth/authenticate",
                     "/api/v1/auth/register",
-                    "/api/v1/auth/refresh"
+                    "/api/v1/auth/refresh",
+                    "/api/v1/auth/activate"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

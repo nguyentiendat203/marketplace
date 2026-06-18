@@ -25,6 +25,7 @@ public class UserServiceImpl extends BaseCRUDServiceImpl<User> implements UserSe
     @Override
     protected void beforeCreate(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setActivationKey(UUID.randomUUID().toString());
     }
 
     @Override
@@ -48,5 +49,15 @@ public class UserServiceImpl extends BaseCRUDServiceImpl<User> implements UserSe
     @Override
     public Optional<User> findByRefreshToken(String refreshToken) {
         return userRepository.findByRefreshToken(refreshToken);
+    }
+
+    @Override
+    public Optional<User> findByActivationKey(String key) {
+        return userRepository.findByActivationKey(key);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 }

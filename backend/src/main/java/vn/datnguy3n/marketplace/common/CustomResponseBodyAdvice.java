@@ -34,7 +34,7 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
         int statusCode = servletResponse.getStatus();
 
-        if (body == null || body instanceof String || body instanceof Throwable) {
+        if (body instanceof String || body == null || body instanceof Throwable) {
             return body;
         }
 

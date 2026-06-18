@@ -15,4 +15,8 @@ public interface UserService extends BaseCRUDService<User> {
     void updateRefreshToken(UUID userId, String refreshToken);
 
     Optional<User> findByRefreshToken(String refreshToken);
+
+    Optional<User> findByActivationKey(String key);
+
+    User saveUser(User user);
 }
