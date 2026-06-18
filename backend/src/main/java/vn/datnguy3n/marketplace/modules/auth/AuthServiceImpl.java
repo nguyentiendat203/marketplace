@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,11 @@ import vn.datnguy3n.marketplace.config.security.JwtProperties;
 import vn.datnguy3n.marketplace.config.security.TokenProvider;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.auth.dto.AuthResponse;
+import vn.datnguy3n.marketplace.modules.auth.dto.ForgotPasswordRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.LoginRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.RegisterRequest;
+import vn.datnguy3n.marketplace.modules.auth.dto.ResetPasswordRequest;
+import vn.datnguy3n.marketplace.modules.auth.entity.PasswordResetToken;
 import vn.datnguy3n.marketplace.modules.mail.MailService;
 import vn.datnguy3n.marketplace.modules.role.RoleService;
 import vn.datnguy3n.marketplace.modules.role.entity.Role;
@@ -39,6 +44,7 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class AuthServiceImpl implements AuthService {
 
     private static final String DEFAULT_ROLE = "ROLE_USER";
+    private static final long RESET_TOKEN_TTL_MINUTES = 5;
 
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
@@ -46,6 +52,8 @@ public class AuthServiceImpl implements AuthService {
     private final RoleService roleService;
     private final JwtProperties jwtProperties;
     private final MailService mailService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${application.mail.activation-ttl-minutes}")
     private long ttlMinutes;
@@ -148,6 +156,53 @@ public class AuthServiceImpl implements AuthService {
 
         return buildAuthResponse(newAccessToken, newRefreshToken, user);
     }
+
+    @Override
+    @Transactional
+    public String forgotPassword(ForgotPasswordRequest request) {
+        User user = userService.findEntityByEmail(request.getEmail());
+        if (user == null) {
+            return "Nếu email tồn tại trong hệ thống, mã khôi phục mật khẩu sẽ được gửi đến hộp thư của bạn.";
+        }
+
+        passwordResetTokenRepository.deleteAllByUserId(user.getId());
+
+        String rawToken = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(rawToken);
+        resetToken.setExpiryDate(Instant.now().plusSeconds(RESET_TOKEN_TTL_MINUTES * 60));
+        resetToken.setUser(user);
+        passwordResetTokenRepository.save(resetToken);
+
+        mailService.sendPasswordResetEmail(user, rawToken);
+
+        return "Mã khôi phục mật khẩu đã được gửi đến hộp thư của bạn. Vui lòng kiểm tra email để lấy mã.";
+    }
+
+    @Override
+    @Transactional
+    public String resetPassword(ResetPasswordRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BusinessException("Mật khẩu mới và xác nhận mật khẩu không trùng khớp", HttpStatus.BAD_REQUEST);
+        }
+
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(request.getToken())
+                .orElseThrow(() -> new BusinessException("Mã xác nhận không hợp lệ hoặc đã được sử dụng", HttpStatus.BAD_REQUEST));
+
+        if (Instant.now().isAfter(resetToken.getExpiryDate())) {
+            passwordResetTokenRepository.deleteByIdPhysically(resetToken.getId());
+            throw new BusinessException("Mã xác nhận đã hết hạn. Vui lòng yêu cầu gửi lại mã mới.", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userService.saveUser(user);
+
+        passwordResetTokenRepository.deleteByIdPhysically(resetToken.getId());
+
+        return "Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.";
+    }
+
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)

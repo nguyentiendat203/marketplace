@@ -17,6 +17,7 @@ import lombok.Setter;
 import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
 
 @MappedSuperclass
+// ---- This annotation is used to filter out soft-deleted entities from queries.
 @SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
@@ -50,11 +51,4 @@ public abstract class BaseEntity {
         this.updatedAt = Instant.now();
         this.updatedBy = ApplicationContextProvider.getCurrentUserLogin().orElse("");
     }
-
-    // @PreRemove
-    // public void handleBeforeDelete() {
-    //     this.deletedAt = Instant.now();
-    //     this.deletedBy = ApplicationContextProvider.getCurrentUserLogin().orElse("");
-    // }
-
 }

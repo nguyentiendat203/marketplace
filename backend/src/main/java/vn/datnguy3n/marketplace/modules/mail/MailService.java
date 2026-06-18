@@ -27,6 +27,28 @@ public class MailService {
     private long ttlMinutes;
 
     @Async
+    public void sendPasswordResetEmail(User user, String token) {
+        try {
+            Context context = new Context();
+            context.setVariable("username", user.getFullName());
+            context.setVariable("token", token);
+
+            String htmlContent = templateEngine.process("mail/password-reset-email", context);
+
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(user.getEmail());
+            helper.setSubject("Mã khôi phục mật khẩu của bạn");
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(mimeMessage);
+            log.info("Password reset email sent successfully to: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to: {}", user.getEmail(), e);
+        }
+    }
+
+    @Async
     public void sendActivationEmail(User user) {
         try {
             Context context = new Context();

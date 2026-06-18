@@ -14,8 +14,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import vn.datnguy3n.marketplace.modules.auth.dto.AuthResponse;
+import vn.datnguy3n.marketplace.modules.auth.dto.ForgotPasswordRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.LoginRequest;
 import vn.datnguy3n.marketplace.modules.auth.dto.RegisterRequest;
+import vn.datnguy3n.marketplace.modules.auth.dto.ResetPasswordRequest;
 import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 
 @RestController
@@ -46,5 +48,15 @@ public class AuthController {
     @GetMapping("/activate")
     public ResponseEntity<UserResponse> activate(@RequestParam("key") String key) {
         return ResponseEntity.ok(authService.activate(key));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        return ResponseEntity.ok(authService.forgotPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(authService.resetPassword(request));
     }
 }

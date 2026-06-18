@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
+import vn.datnguy3n.marketplace.modules.user.dto.ChangePasswordRequest;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 public interface UserService extends BaseCRUDService<User> {
@@ -19,4 +20,6 @@ public interface UserService extends BaseCRUDService<User> {
     Optional<User> findByActivationKey(String key);
 
     User saveUser(User user);
+
+    String changePassword(ChangePasswordRequest request);
 }
