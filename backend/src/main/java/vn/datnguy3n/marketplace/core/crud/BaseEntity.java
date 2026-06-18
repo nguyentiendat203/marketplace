@@ -1,4 +1,4 @@
-package vn.datnguy3n.marketplace.common;
+package vn.datnguy3n.marketplace.core.crud;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,10 +11,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.Setter;
+import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
 
 @MappedSuperclass
 @SQLRestriction("deleted_at IS NULL")
@@ -51,10 +51,10 @@ public abstract class BaseEntity {
         this.updatedBy = ApplicationContextProvider.getCurrentUserLogin().orElse("");
     }
 
-    @PreRemove
-    public void handleBeforeDelete() {
-        this.deletedAt = Instant.now();
-        this.deletedBy = ApplicationContextProvider.getCurrentUserLogin().orElse("");
-    }
+    // @PreRemove
+    // public void handleBeforeDelete() {
+    //     this.deletedAt = Instant.now();
+    //     this.deletedBy = ApplicationContextProvider.getCurrentUserLogin().orElse("");
+    // }
 
 }

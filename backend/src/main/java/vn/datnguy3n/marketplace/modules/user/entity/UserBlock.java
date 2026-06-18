@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
-import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 
 @Entity
 @Table(

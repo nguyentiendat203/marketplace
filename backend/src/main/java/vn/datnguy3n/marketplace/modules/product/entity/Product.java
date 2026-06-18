@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Entity

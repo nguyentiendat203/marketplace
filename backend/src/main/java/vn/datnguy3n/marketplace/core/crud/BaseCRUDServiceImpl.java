@@ -1,5 +1,6 @@
 package vn.datnguy3n.marketplace.core.crud;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -8,9 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 
@@ -23,7 +23,6 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         this.repository = repository;
     }
 
-    @Transactional
     @Override
     public T create(T entity) {
         beforeCreate(entity);
@@ -32,7 +31,6 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         return saved;
     }
 
-    @Transactional
     @Override
     public T update(UUID id, T entity) {
         getById(id);
@@ -43,7 +41,6 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         return updated;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public T getById(UUID id) {
         Optional<T> entity = repository.findById(id);
@@ -53,7 +50,6 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         throw new BusinessException("Entity not found with id: " + id, HttpStatus.NOT_FOUND);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public ResultPaginationResponse getAll(Specification<T> spec, Pageable pageable) {
         Page<T> page = repository.findAll(spec, pageable);
@@ -70,11 +66,14 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         return result;
     }
 
-    @Transactional
     @Override
     public void delete(UUID id) {
-        getById(id);
-        repository.deleteById(id);
+        T entity = getById(id); 
+        
+        entity.setDeletedAt(Instant.now());
+        entity.setDeletedBy(ApplicationContextProvider.getCurrentUserLogin().orElse(""));
+        
+        repository.save(entity);
     }
 
     protected void beforeCreate(T entity) {}

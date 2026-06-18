@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.turkraft.springfilter.boot.Filter;
 
-import vn.datnguy3n.marketplace.common.BaseEntity;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
 public abstract class BaseCRUDController<T extends BaseEntity> {
@@ -33,13 +32,13 @@ public abstract class BaseCRUDController<T extends BaseEntity> {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@PathVariable UUID id, @RequestBody T entity) {
+    public ResponseEntity<T> update(@PathVariable("id") UUID id, @RequestBody T entity) {
         T updated = getService.update(id, entity);
         return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<T> getById(@PathVariable UUID id) {
+    public ResponseEntity<T> getById(@PathVariable("id") UUID id) {
         T found = getService.getById(id);
         return ResponseEntity.ok(found);
     }
@@ -52,7 +51,7 @@ public abstract class BaseCRUDController<T extends BaseEntity> {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         getService.delete(id);
         return ResponseEntity.ok(null);
     }

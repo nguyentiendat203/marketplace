@@ -8,7 +8,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import vn.datnguy3n.marketplace.common.BaseEntity;
+import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 
 @Entity
 @Table(name = "order_addresses")
