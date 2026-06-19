@@ -18,25 +18,27 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class KycRecord extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "kyc_user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "kyc_document_type", nullable = false, length = 50)
     private String documentType;
 
-    @Column(nullable = false)
+    @Column(name = "kyc_front_image_url", nullable = false)
     private String frontImageUrl;
 
+    @Column(name = "kyc_back_image_url")
     private String backImageUrl;
 
+    @Column(name = "kyc_selfie_url")
     private String selfieUrl;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "kyc_status", nullable = false, length = 20)
     private KycStatus status = KycStatus.PENDING;
 
-    @Column(length = 36)
+    @Column(name = "kyc_reviewed_by", length = 36)
     private String reviewedBy;
 
-    @Column(length = 500)
+    @Column(name = "kyc_review_note", length = 500)
     private String reviewNote;
 }

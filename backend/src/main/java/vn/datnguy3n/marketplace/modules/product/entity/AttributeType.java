@@ -13,6 +13,6 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class AttributeType extends BaseEntity {
 
-    @Column(name = "attribute_name", nullable = false, length = 100)
+    @Column(name = "atyp_attribute_name", nullable = false, length = 100)
     private String attributeName;
 }

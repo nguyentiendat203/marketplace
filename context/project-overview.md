@@ -10,11 +10,11 @@ Project hướng tới việc xây dựng một sàn thương mại điện tử
 
 ## Core User Flow
 
-1. **Xác thực & Phân quyền (Auth & RBAC):** Người dùng truy cập -> Đăng ký/Đăng nhập -> Hệ thống cấp JWT và phân quyền mặc định là `USER_NORMAL` (chỉ được xem, chưa được bán).
+1. **Xác thực & Phân quyền (Auth & RBAC):** Người dùng truy cập -> Đăng ký/Đăng nhập -> Hệ thống cấp JWT và phân quyền mặc định là `ROLE_USER` (chỉ được xem, chưa được bán).
 
-2. **Định danh nâng cao (KYC Flow):** User muốn đăng bán đồ cũ -> Hệ thống yêu cầu KYC -> User gửi ảnh giấy tờ lên MinIO -> Admin duyệt -> Hệ thống cập nhật quyền lên `USER_VERIFIED` (được phép đăng bán).
+2. **Định danh nâng cao (KYC Flow):** User muốn đăng bán đồ cũ -> Hệ thống yêu cầu KYC -> User gửi ảnh giấy tờ lên MinIO -> Admin duyệt -> Hệ thống cập nhật field `user_is_verified = true` (được phép đăng bán).
 
-3. **Đăng tải sản phẩm (Seller Flow):** Người bán (`USER_VERIFIED`) tạo bài đăng -> Chọn danh mục, thuộc tính động -> Upload ảnh sản phẩm lên MinIO công khai.
+3. **Đăng tải sản phẩm (Seller Flow):** Người bán tạo bài đăng -> Chọn danh mục, thuộc tính động -> Upload ảnh sản phẩm lên MinIO công khai.
 
 4. **Đặt hàng & Giữ tiền trung gian (Buyer & Escrow Flow):** Người mua xem sản phẩm (hệ thống check xem có bị người bán block không) -> Bấm mua -> Thanh toán qua Stripe -> Stripe giữ tiền (Escrow) -> Hệ thống chuyển trạng thái đơn hàng sang "Chờ giao hàng".
 
@@ -32,23 +32,23 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 
 #### Bảng `user` (Quản lý người dùng)
 
-| Field Name                | Data Type | Key / Constraint        | Description                                                       |
-| :------------------------ | :-------- | :---------------------- | :---------------------------------------------------------------- |
-| `id`                      | PK(uuid)  | Primary Key             | Định danh duy nhất của user                                       |
-| `role_id`                 | FK(uuid)  | Foreign Key (`role.id`) | Liên kết phân quyền chức vụ                                       |
-| `email`                   | varchar   | UNIQUE                  | Email dùng để đăng nhập và nhận OTP quên mật khẩu                 |
-| `password`                | varchar   |                         | Mật khẩu (đã được mã hóa bảo mật BCrypt)                          |
-| `user_name`               | varchar   |                         | Tên đăng nhập / Tên hiển thị công khai                            |
-| `user_avatar`             | varchar   |                         | Đường dẫn ảnh đại diện                                            |
-| `user_is_verified`        | boolean   |                         | Trạng thái tích xanh xác thực danh tính                           |
-| `seller_level`            | smallint  |                         | Cấp độ uy tín của người bán                                       |
-| `user_rating_avg`         | float     |                         | Điểm đánh giá trung bình từ người mua                             |
-| `user_view_count`         | int       |                         | Tổng lượt xem trang cá nhân                                       |
-| `user_bio`                | text      |                         | Đoạn giới thiệu bản thân                                          |
-| `user_listing_count`      | int       |                         | Số lượng sản phẩm đang đăng bán                                   |
-| `user_followers_count`    | int       |                         | Số lượng người theo dõi _(Đã chuẩn hóa lỗi chính tả từ ERD)_      |
-| `user_following_count`    | int       |                         | Số lượng người đang theo dõi _(Đã chuẩn hóa lỗi chính tả từ ERD)_ |
-| `user_stripe_customer_id` | varchar   |                         | ID định danh khách hàng trên hệ thống Stripe                      |
+| Field Name                | Data Type | Key / Constraint        | Description                                       |
+| :------------------------ | :-------- | :---------------------- | :------------------------------------------------ |
+| `id`                      | PK(uuid)  | Primary Key             | Định danh duy nhất của user                       |
+| `role_id`                 | FK(uuid)  | Foreign Key (`role.id`) | Liên kết phân quyền chức vụ                       |
+| `email`                   | varchar   | UNIQUE                  | Email dùng để đăng nhập và nhận OTP quên mật khẩu |
+| `password`                | varchar   |                         | Mật khẩu (đã được mã hóa bảo mật BCrypt)          |
+| `user_name`               | varchar   |                         | Tên đăng nhập / Tên hiển thị công khai            |
+| `user_avatar`             | varchar   |                         | Đường dẫn ảnh đại diện                            |
+| `user_is_verified`        | boolean   |                         | Trạng thái tích xanh xác thực danh tính           |
+| `seller_level`            | smallint  |                         | Cấp độ uy tín của người bán                       |
+| `user_rating_avg`         | float     |                         | Điểm đánh giá trung bình từ người mua             |
+| `user_view_count`         | int       |                         | Tổng lượt xem trang cá nhân                       |
+| `user_bio`                | text      |                         | Đoạn giới thiệu bản thân                          |
+| `user_listing_count`      | int       |                         | Số lượng sản phẩm đang đăng bán                   |
+| `user_followers_count`    | int       |                         | Số lượng người theo dõi                           |
+| `user_following_count`    | int       |                         | Số lượng người đang theo dõi                      |
+| `user_stripe_customer_id` | varchar   |                         | ID định danh khách hàng trên hệ thống Stripe      |
 
 #### Bảng `role` (Vai trò hệ thống)
 
@@ -326,7 +326,7 @@ Các bảng trong hệ thống khi triển khai thực tế đều mặc định
 #### 2. Module KYC
 
 - **Gửi hồ sơ KYC:** API cho User upload ảnh giấy tờ cá nhân lên hệ thống.
-- **Phê duyệt KYC:** Giao diện cho Admin xem danh sách hồ sơ -> Bấm nút "Duyệt" (Tự động nâng quyền User lên `USER_VERIFIED`) hoặc "Từ chối".
+- **Phê duyệt KYC:** Giao diện cho Admin xem danh sách hồ sơ -> Bấm nút "Duyệt" (cập nhật key `kycVerified`) hoặc "Từ chối".
 
 #### 3. Module Product
 

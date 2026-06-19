@@ -16,15 +16,16 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class Category extends BaseEntity {
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "cat_name", nullable = false, length = 150)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(name = "cat_slug", nullable = false, unique = true, length = 150)
     private String slug;
 
+    @Column(name = "cat_image_url")
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "cat_parent_id")
     private Category parent;
 }

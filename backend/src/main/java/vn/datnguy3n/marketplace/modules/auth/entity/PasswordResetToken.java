@@ -19,13 +19,13 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 @Setter
 public class PasswordResetToken extends BaseEntity {
 
-    @Column(nullable = false)
+    @Column(name = "prt_token", nullable = false)
     private String token;
 
-    @Column(nullable = false)
+    @Column(name = "prt_expiry_date", nullable = false)
     private Instant expiryDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "prt_user_id", nullable = false)
     private User user;
 }

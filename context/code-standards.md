@@ -18,6 +18,28 @@
 - **Class Name:** Sử dụng `PascalCase` (Ví dụ: `LoginRequest.java`, `ProductService.java`).
 - **Method & Variable Name:** Sử dụng `camelCase` (Ví dụ: `generateJwtToken()`, `userId`).
 - **Database Table & Column:** Sử dụng `snake_case` chữ thường toàn bộ (Ví dụ: `user_block`, `stripe_payment_intent_id`).
+- **Column Prefix Rule:** Tất cả các thuộc tính trong Entity (ngoại trừ trường `id` và các trường audit kế thừa từ `BaseEntity`) khi map xuống Database bắt buộc phải cấu hình `@Column(name = "prefix_ten_cot")`. Tiền tố `prefix_` là chữ viết tắt (3–4 ký tự, dạng snake_case) đại diện cho bảng đó. Đối với `@JoinColumn` (khóa ngoại), tên cột phải kết hợp: `prefix_bảng_hiện_tại_` + `tên_trường_id` (Ví dụ: trong `User`, FK tới `Role` sẽ là `@JoinColumn(name = "usr_role_id")`).
+
+  **Bảng quy ước tiền tố (Prefix Mapping Table):**
+
+  | Entity               | Prefix   | Ví dụ                                        |
+  | :------------------- | :------- | :------------------------------------------- |
+  | `User`               | `usr_`   | `usr_email`, `usr_password`, `usr_role_id`   |
+  | `Role`               | `role_`  | `role_name`, `role_description`              |
+  | `Permission`         | `pms_`   | `pms_name`, `pms_resource`, `pms_action`     |
+  | `UserBlock`          | `ublk_`  | `ublk_blocker_id`, `ublk_blocked_id`         |
+  | `KycRecord`          | `kyc_`   | `kyc_status`, `kyc_front_image_url`          |
+  | `PasswordResetToken` | `prt_`   | `prt_token`, `prt_expiry_date`               |
+  | `Product`            | `prod_`  | `prod_title`, `prod_price`, `prod_seller_id` |
+  | `Category`           | `cat_`   | `cat_name`, `cat_slug`, `cat_parent_id`      |
+  | `Brand`              | `brnd_`  | `brnd_name`, `brnd_logo_url`                 |
+  | `AttributeType`      | `atyp_`  | `atyp_attribute_name`                        |
+  | `AttributeOption`    | `aopt_`  | `aopt_attribute_option_name`                 |
+  | `ProductAttribute`   | `prat_`  | `prat_product_id`, `prat_attribute_option_id`|
+  | `ProductImage`       | `pimg_`  | `pimg_image_url`, `pimg_display_order`       |
+  | `Order`              | `ord_`   | `ord_amount`, `ord_status`, `ord_buyer_id`   |
+  | `OrderAddress`       | `oadr_`  | `oadr_postal_code`, `oadr_city`              |
+  | `Payment`            | `pay_`   | `pay_amount`, `pay_currency`, `pay_order_id` |
 
 ### 2. Frontend (ReactTS)
 

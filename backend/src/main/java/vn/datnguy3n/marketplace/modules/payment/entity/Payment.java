@@ -22,26 +22,26 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class Payment extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JoinColumn(name = "pay_order_id", nullable = false, unique = true)
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
+    @JoinColumn(name = "pay_buyer_id", nullable = false)
     private User buyer;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(name = "pay_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "pay_currency", nullable = false, length = 10)
     private String currency = "JPY";
 
     // Must not be null when status = COMPLETED (invariant #6)
-    @Column(length = 100)
+    @Column(name = "pay_stripe_payment_intent_id", length = 100)
     private String stripePaymentIntentId;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "pay_status", nullable = false, length = 20)
     private PaymentStatus status = PaymentStatus.PENDING;
 
-    @Column(length = 100)
+    @Column(name = "pay_webhook_event", length = 100)
     private String webhookEvent;
 }

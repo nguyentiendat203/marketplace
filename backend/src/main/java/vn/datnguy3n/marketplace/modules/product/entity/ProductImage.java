@@ -17,12 +17,12 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 public class ProductImage extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "pimg_product_id", nullable = false)
     private Product product;
 
-    @Column(nullable = false)
+    @Column(name = "pimg_image_url", nullable = false)
     private String imageUrl;
 
-    @Column(nullable = false)
+    @Column(name = "pimg_display_order", nullable = false)
     private int displayOrder = 0;
 }

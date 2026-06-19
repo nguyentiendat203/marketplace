@@ -22,10 +22,10 @@ import vn.datnguy3n.marketplace.modules.permission.entity.Permission;
 @Setter
 public class Role extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "role_name", nullable = false, unique = true, length = 50)
     private String name;
 
-    @Column(length = 255)
+    @Column(name = "role_description", length = 255)
     private String description;
 
     @ManyToMany(fetch = FetchType.LAZY)

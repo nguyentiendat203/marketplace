@@ -13,17 +13,17 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Entity
 @Table(
     name = "user_blocks",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"blocker_id", "blocked_id"})
+    uniqueConstraints = @UniqueConstraint(columnNames = {"ublk_blocker_id", "ublk_blocked_id"})
 )
 @Getter
 @Setter
 public class UserBlock extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blocker_id", nullable = false)
+    @JoinColumn(name = "ublk_blocker_id", nullable = false)
     private User blocker;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blocked_id", nullable = false)
+    @JoinColumn(name = "ublk_blocked_id", nullable = false)
     private User blocked;
 }

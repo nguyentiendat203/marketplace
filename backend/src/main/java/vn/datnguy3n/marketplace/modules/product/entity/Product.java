@@ -23,35 +23,35 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class Product extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
+    @JoinColumn(name = "prod_seller_id", nullable = false)
     private User seller;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "prod_title", nullable = false, length = 255)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "prod_description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(name = "prod_price", nullable = false, precision = 15, scale = 2)
     private BigDecimal price;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "prod_condition", nullable = false, length = 20)
     private String condition;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "prod_status", nullable = false, length = 20)
     private ProductStatus status = ProductStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "prod_category_id")
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
+    @JoinColumn(name = "prod_brand_id")
     private Brand brand;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductImage> images;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch=FetchType.LAZY)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductAttribute> attributes;
 }

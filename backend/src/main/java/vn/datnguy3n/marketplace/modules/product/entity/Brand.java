@@ -13,8 +13,9 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class Brand extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(name = "brnd_name", nullable = false, unique = true, length = 150)
     private String name;
 
+    @Column(name = "brnd_logo_url")
     private String logoUrl;
 }

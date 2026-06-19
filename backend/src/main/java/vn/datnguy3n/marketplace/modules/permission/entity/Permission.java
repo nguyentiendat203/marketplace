@@ -13,15 +13,15 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class Permission extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(name = "pms_name", nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "pms_resource", nullable = false, length = 100)
     private String resource;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "pms_action", nullable = false, length = 50)
     private String action;
 
-    @Column(length = 255)
+    @Column(name = "pms_description", length = 255)
     private String description;
 }

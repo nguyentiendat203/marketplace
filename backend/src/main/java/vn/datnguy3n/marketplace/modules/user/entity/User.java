@@ -17,33 +17,34 @@ import vn.datnguy3n.marketplace.modules.role.entity.Role;
 @Setter
 public class User extends BaseEntity {
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(name = "usr_email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "usr_password", nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "usr_full_name", nullable = false, length = 150)
     private String fullName;
 
+    @Column(name = "usr_avatar_url")
     private String avatarUrl;
 
-    @Column(length = 20)
+    @Column(name = "usr_phone", length = 20)
     private String phone;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
+    @JoinColumn(name = "usr_role_id")
     private Role role;
 
-    @Column(name = "is_activated", nullable = false)
+    @Column(name = "usr_is_activated", nullable = false)
     private boolean activated = false;
 
-    @Column(name = "is_kyc_verified", nullable = false)
+    @Column(name = "usr_is_kyc_verified", nullable = false)
     private boolean kycVerified = false;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "usr_refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
 
-    @Column(name = "activation_key", unique = true)
+    @Column(name = "usr_activation_key", unique = true)
     private String activationKey;
 }

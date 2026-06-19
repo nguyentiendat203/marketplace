@@ -17,27 +17,27 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 public class OrderAddress extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JoinColumn(name = "oadr_order_id", nullable = false, unique = true)
     private Order order;
 
-    @Column(nullable = false, length = 10)
+    @Column(name = "oadr_postal_code", nullable = false, length = 10)
     private String postalCode;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "oadr_prefecture", nullable = false, length = 50)
     private String prefecture;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "oadr_city", nullable = false, length = 100)
     private String city;
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "oadr_street", nullable = false, length = 255)
     private String street;
 
-    @Column(length = 255)
+    @Column(name = "oadr_building", length = 255)
     private String building;
 
-    @Column(nullable = false, length = 150)
+    @Column(name = "oadr_recipient_name", nullable = false, length = 150)
     private String recipientName;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "oadr_phone", nullable = false, length = 20)
     private String phone;
 }

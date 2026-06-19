@@ -23,24 +23,24 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
+    @JoinColumn(name = "ord_buyer_id", nullable = false)
     private User buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
+    @JoinColumn(name = "ord_seller_id", nullable = false)
     private User seller;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "ord_product_id", nullable = false)
     private Product product;
 
-    @Column(nullable = false, precision = 15, scale = 2)
+    @Column(name = "ord_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false, length = 20)
+    @Column(name = "ord_status", nullable = false, length = 20)
     private Orderstatus status = Orderstatus.PENDING;
 
-    @Column(length = 100)
+    @Column(name = "ord_stripe_payment_intent_id", length = 100)
     private String stripePaymentIntentId;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
