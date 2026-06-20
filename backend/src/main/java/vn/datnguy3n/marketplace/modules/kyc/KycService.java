@@ -1,18 +1,23 @@
 package vn.datnguy3n.marketplace.modules.kyc;
 
-import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
-import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
-
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
+import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
+import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
+import vn.datnguy3n.marketplace.modules.kyc.dto.KycReviewRequest;
+import vn.datnguy3n.marketplace.modules.kyc.entity.DocumentType;
+import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
+import vn.datnguy3n.marketplace.modules.kyc.entity.KycStatus;
 
 public interface KycService extends BaseCRUDService<KycRecord> {
 
-    KycRecord getLatestByUserId(UUID userId);
+    KycResponse submitKyc(DocumentType documentType, MultipartFile frontImage, MultipartFile backImage, MultipartFile selfieImage);
 
-    List<KycRecord> getPendingRequests();
+    ResultPaginationResponse getAdminKycList(KycStatus status, Pageable pageable);
 
-    KycRecord approve(UUID id, String reviewedBy);
-
-    KycRecord reject(UUID id, String reviewedBy, String note);
+    KycResponse reviewKyc(UUID id, KycReviewRequest request);
 }

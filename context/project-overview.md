@@ -89,19 +89,19 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 
 ### 2. Module KYC (Xác thực danh tính)
 
-#### Bảng `kyc_request` (Yêu cầu định danh)
+#### Bảng `kyc_records` (Hồ sơ định danh nâng cao)
 
-| Field Name         | Data Type | Key / Constraint            | Description                                    |
-| :----------------- | :-------- | :-------------------------- | :--------------------------------------------- |
-| `id`               | PK(uuid)  | Primary Key                 | Định danh lượt gửi yêu cầu KYC                 |
-| `user_id`          | FK(uuid)  | Foreign Key (`user.id`)     | Người dùng gửi yêu cầu                         |
-| `kyc_full_name`    | varchar   |                             | Họ và tên thật trên giấy tờ                    |
-| `kyc_address`      | varchar   |                             | Địa chỉ cư trú trên giấy tờ                    |
-| `kyc_card_front`   | varchar   | URL ảnh (Lưu MinIO private) | Ảnh mặt trước CCCD/Hộ chiếu                    |
-| `kyc_card_back`    | varchar   | URL ảnh (Lưu MinIO private) | Ảnh mặt sau CCCD/Hộ chiếu                      |
-| `kyc_selfie_image` | varchar   | URL ảnh (Lưu MinIO private) | Ảnh chân dung tự chụp đối chiếu                |
-| `kyc_status`       | enum      |                             | Trạng thái duyệt (PENDING, APPROVED, REJECTED) |
-| `kyc_admin_note`   | text      |                             | Phản hồi từ Admin khi từ chối hồ sơ            |
+| Field Name            | Data Type    | Key / Constraint                | Description                                      |
+| :-------------------- | :----------- | :------------------------------ | :----------------------------------------------- |
+| `id`                  | PK(uuid)     | Primary Key                     | Định danh hồ sơ KYC (Kế thừa từ BaseEntity)      |
+| `kyc_user_id`         | FK(uuid)     | Foreign Key (`users.id`) Unique | Liên kết tới người dùng cần xác thực             |
+| `kyc_document_type`   | enum         | `ID_CARD`, `PASSPORT`,...       | Loại giấy tờ cá nhân sử dụng để định danh        |
+| `kyc_front_image_key` | varchar(255) | Not Null                        | Object Key ảnh mặt trước giấy tờ (MinIO private) |
+| `kyc_back_image_key`  | varchar(255) | Nullable                        | Object Key ảnh mặt sau giấy tờ (MinIO private)   |
+| `kyc_selfie_key`      | varchar(255) | Nullable                        | Object Key ảnh chân dung tự chụp (MinIO private) |
+| `kyc_status`          | enum         | PENDING, APPROVED, REJECTED     | Trạng thái phê duyệt (Mặc định: PENDING)         |
+| `kyc_reviewed_by`     | uuid         | Nullable                        | ID của Admin thực hiện duyệt hồ sơ               |
+| `kyc_review_note`     | varchar(500) | Nullable                        | Lý do từ chối hoặc ghi chú phản hồi từ Admin     |
 
 ---
 

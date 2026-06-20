@@ -1,52 +1,33 @@
 package vn.datnguy3n.marketplace.modules.kyc;
 
-import java.util.List;
-import java.util.UUID;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
-import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
+import lombok.RequiredArgsConstructor;
+import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
+import vn.datnguy3n.marketplace.modules.kyc.entity.DocumentType;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/kyc")
-public class KycController extends BaseCRUDController<KycRecord> {
+public class KycController {
 
     private final KycService kycService;
 
-    public KycController(KycService kycService) {
-        super(kycService);
-        this.kycService = kycService;
-    }
+    @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<KycResponse> submitKyc(
+            @RequestParam("documentType") DocumentType documentType,
+            @RequestParam("frontImage") MultipartFile frontImage,
+            @RequestParam(value = "backImage", required = false) MultipartFile backImage,
+            @RequestParam(value = "selfieImage", required = false) MultipartFile selfieImage) {
 
-    @GetMapping("/user/{userId}/latest")
-    public ResponseEntity<KycRecord> getLatestByUser(@PathVariable UUID userId) {
-        return ResponseEntity.ok(kycService.getLatestByUserId(userId));
-    }
-
-    @GetMapping("/pending")
-    public ResponseEntity<List<KycRecord>> getPending() {
-        return ResponseEntity.ok(kycService.getPendingRequests());
-    }
-
-    @PatchMapping("/{id}/approve")
-    public ResponseEntity<KycRecord> approve(
-            @PathVariable UUID id,
-            @RequestParam String reviewedBy) {
-        return ResponseEntity.ok(kycService.approve(id, reviewedBy));
-    }
-
-    @PatchMapping("/{id}/reject")
-    public ResponseEntity<KycRecord> reject(
-            @PathVariable UUID id,
-            @RequestParam String reviewedBy,
-            @RequestParam String note) {
-        return ResponseEntity.ok(kycService.reject(id, reviewedBy, note));
+        KycResponse response = kycService.submitKyc(documentType, frontImage, backImage, selfieImage);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

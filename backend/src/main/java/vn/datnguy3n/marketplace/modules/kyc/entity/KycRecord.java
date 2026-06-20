@@ -2,6 +2,8 @@ package vn.datnguy3n.marketplace.modules.kyc.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,22 +23,24 @@ public class KycRecord extends BaseEntity {
     @JoinColumn(name = "kyc_user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "kyc_document_type", nullable = false, length = 50)
-    private String documentType;
+    private DocumentType documentType;
 
-    @Column(name = "kyc_front_image_url", nullable = false)
-    private String frontImageUrl;
+    @Column(name = "kyc_front_image_key", nullable = false)
+    private String frontImageKey;
 
-    @Column(name = "kyc_back_image_url")
-    private String backImageUrl;
+    @Column(name = "kyc_back_image_key")
+    private String backImageKey;
 
-    @Column(name = "kyc_selfie_url")
-    private String selfieUrl;
+    @Column(name = "kyc_selfie_key")
+    private String selfieKey;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "kyc_status", nullable = false, length = 20)
     private KycStatus status = KycStatus.PENDING;
 
-    @Column(name = "kyc_reviewed_by", length = 36)
+    @Column(name = "kyc_reviewed_by", length = 255)
     private String reviewedBy;
 
     @Column(name = "kyc_review_note", length = 500)
