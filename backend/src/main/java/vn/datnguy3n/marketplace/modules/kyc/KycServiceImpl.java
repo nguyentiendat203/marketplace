@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.jpa.domain.Specification;
+
+import com.turkraft.springfilter.boot.Filter;
 
 import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
@@ -98,10 +101,10 @@ public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements Ky
 
     @Override
     @Transactional(readOnly = true)
-    public ResultPaginationResponse getAdminKycList(KycStatus status, Pageable pageable) {
+    public ResultPaginationResponse getAdminKycList(@Filter Specification<KycRecord> spec, Pageable pageable) {
         Page<KycRecord> page;
-        if (status != null) {
-            page = kycRepository.findByStatus(status, pageable);
+        if (spec != null) {
+            page = kycRepository.findAll(spec, pageable);
         } else {
             page = kycRepository.findAll(pageable);
         }

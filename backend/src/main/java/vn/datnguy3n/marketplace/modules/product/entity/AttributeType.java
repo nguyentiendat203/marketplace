@@ -1,7 +1,11 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
-import jakarta.persistence.Column;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +17,9 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class AttributeType extends BaseEntity {
 
-    @Column(name = "atyp_attribute_name", nullable = false, length = 100)
-    private String attributeName;
+    @OneToMany(mappedBy = "attributeType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AttributeTypeTranslation> translations;
+
+    @OneToMany(mappedBy = "attributeType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AttributeOption> options;
 }

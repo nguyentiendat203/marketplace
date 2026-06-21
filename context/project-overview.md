@@ -150,12 +150,12 @@ Hệ thống cơ sở dữ liệu được thiết kế dựa trên sơ đồ ER
 
 ### Bảng `category_translation` (Bản dịch danh mục)
 
-| Field Name      | Data Type  | Key / Constraint            | Description                                     |
-| :-------------- | :--------- | :-------------------------- | :---------------------------------------------- |
-| `id`            | PK(uuid)   | Primary Key                 | Định danh bản ghi dịch                          |
-| `category_id`   | FK(uuid)   | Foreign Key (`category.id`) | Liên kết tới danh mục gốc                       |
-| `language_code` | varchar(5) | UNIQUE với `category_id`    | Mã ngôn ngữ ("vi", "ja", "en")                  |
-| `ctg_name`      | varchar    |                             | Tên danh mục đã dịch (Ví dụ: "家電", "Điện tử") |
+| Field Name      | Data Type  | Key / Constraint              | Description                                     |
+| :-------------- | :--------- | :---------------------------- | :---------------------------------------------- |
+| `id`            | PK(uuid)   | Primary Key                   | Định danh bản ghi dịch                          |
+| `category_id`   | FK(uuid)   | Foreign Key (`c  ategory.id`) | Liên kết tới danh mục gốc                       |
+| `language_code` | varchar(5) | UNIQUE với `category_id`      | Mã ngôn ngữ ("vi", "ja", "en")                  |
+| `ctg_name`      | varchar    |                               | Tên danh mục đã dịch (Ví dụ: "家電", "Điện tử") |
 
 ### Bảng `brand` (Gốc - Chỉ lưu Logo)
 

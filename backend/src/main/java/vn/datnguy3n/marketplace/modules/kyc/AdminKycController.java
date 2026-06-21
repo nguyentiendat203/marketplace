@@ -3,21 +3,23 @@ package vn.datnguy3n.marketplace.modules.kyc;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
 import vn.datnguy3n.marketplace.modules.kyc.dto.KycReviewRequest;
-import vn.datnguy3n.marketplace.modules.kyc.entity.KycStatus;
+import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,10 +30,10 @@ public class AdminKycController {
 
     @GetMapping()
     public ResponseEntity<ResultPaginationResponse> getKycList(
-            @RequestParam(value = "status", required = false) KycStatus status,
+            @Filter Specification<KycRecord> spec,
             Pageable pageable) {
 
-        return ResponseEntity.ok(kycService.getAdminKycList(status, pageable));
+        return ResponseEntity.ok(kycService.getAdminKycList(spec, pageable));
     }
 
     @PutMapping("/{id}/review")

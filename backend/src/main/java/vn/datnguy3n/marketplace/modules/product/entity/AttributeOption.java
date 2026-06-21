@@ -1,10 +1,13 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
-import jakarta.persistence.Column;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +23,6 @@ public class AttributeOption extends BaseEntity {
     @JoinColumn(name = "aopt_attribute_type_id", nullable = false)
     private AttributeType attributeType;
 
-    @Column(name = "aopt_attribute_option_name", nullable = false, length = 255)
-    private String attributeOptionName;
+    @OneToMany(mappedBy = "attributeOption", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AttributeOptionTranslation> translations;
 }

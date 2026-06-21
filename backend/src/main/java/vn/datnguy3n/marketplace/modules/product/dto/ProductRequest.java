@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -29,10 +28,9 @@ public class ProductRequest {
     @Min(0)
     private BigDecimal price;
 
-    @NotBlank
-    private String condition;
+    private String conditionNote;
 
-    private List<String> imageUrls;
+    private String languageCode;
 
-    private Map<String, String> attributes;
+    private List<UUID> attributeOptionIds;
 }

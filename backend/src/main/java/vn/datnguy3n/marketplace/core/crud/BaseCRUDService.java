@@ -5,6 +5,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.turkraft.springfilter.boot.Filter;
+
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
 public interface BaseCRUDService<T extends BaseEntity> {
