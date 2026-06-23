@@ -1,5 +1,6 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +23,7 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class ProductTranslation extends BaseEntity {
 
+    @JsonIgnoreProperties({"translations", "images", "attributes", "seller", "category", "brand"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ptrn_product_id", nullable = false)
     private Product product;

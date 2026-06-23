@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import lombok.extern.slf4j.Slf4j;
 import vn.datnguy3n.marketplace.common.ApiResponse;
@@ -24,6 +25,13 @@ public class GlobalExceptionHandler {
                 .toList();
 
         return  buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST, String.join("; ", errors));
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMissingServletRequestPartException(MissingServletRequestPartException ex) {
+        log.warn("Missing request part: {}", ex.getRequestPartName());
+        return buildResponse(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,
+                "Thiếu trường bắt buộc: " + ex.getRequestPartName());
     }
 
     @ExceptionHandler(value = BusinessException.class)

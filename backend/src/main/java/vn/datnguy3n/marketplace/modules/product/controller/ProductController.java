@@ -40,8 +40,9 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponse> createProduct(
             @Valid @RequestPart("data") ProductRequest request,
+            @RequestPart(value = "thumbnail") MultipartFile thumbnail,
             @RequestPart(value = "images", required = false) MultipartFile[] images) {
-        ProductResponse response = productService.createProduct(request, images);
+        ProductResponse response = productService.createProduct(request, thumbnail, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -53,17 +54,17 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductDetail(@PathVariable UUID id) {
+    public ResponseEntity<ProductResponse> getProductDetail(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> update(@PathVariable UUID id, @RequestBody Product entity) {
-        return ResponseEntity.ok(productService.update(id, entity));
+    public ResponseEntity<Product> update(@PathVariable("id") UUID id, @RequestBody Product request) {
+        return ResponseEntity.ok(productService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") UUID id) {
         productService.delete(id);
         return ResponseEntity.ok(null);
     }

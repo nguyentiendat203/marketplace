@@ -15,7 +15,7 @@ import vn.datnguy3n.marketplace.modules.product.entity.Product;
 
 public interface ProductService extends BaseCRUDService<Product> {
 
-    ProductResponse createProduct(ProductRequest request, MultipartFile[] images);
+    ProductResponse createProduct(ProductRequest request, MultipartFile thumbnail, MultipartFile[] images);
 
     ProductResponse getProductDetail(UUID id);
 

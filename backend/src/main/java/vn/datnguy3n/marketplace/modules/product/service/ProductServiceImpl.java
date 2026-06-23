@@ -23,6 +23,7 @@ import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductRequest;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductResponse;
+import vn.datnguy3n.marketplace.modules.product.dto.ProductSummaryResponse;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeOption;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeOptionTranslation;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeTypeTranslation;
@@ -35,6 +36,7 @@ import vn.datnguy3n.marketplace.modules.product.entity.ProductAttribute;
 import vn.datnguy3n.marketplace.modules.product.entity.ProductImage;
 import vn.datnguy3n.marketplace.modules.product.entity.ProductStatus;
 import vn.datnguy3n.marketplace.modules.product.entity.ProductTranslation;
+import vn.datnguy3n.marketplace.modules.product.mapper.ProductMapper;
 import vn.datnguy3n.marketplace.modules.product.repository.attribute.AttributeOptionRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.attribute.AttributeOptionTranslationRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.attribute.AttributeTypeTranslationRepository;
@@ -68,6 +70,7 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
     private final MinioProperties minioProperties;
     private final LocaleHelper localeHelper;
     private final UserService userService;
+    private final ProductMapper productMapper;
 
     public ProductServiceImpl(ProductRepository productRepository,
             ProductTranslationRepository productTranslationRepository,
@@ -83,7 +86,8 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
             StorageService storageService,
             MinioProperties minioProperties,
             LocaleHelper localeHelper,
-            UserService userService) {
+            UserService userService,
+            ProductMapper productMapper) {
         super(productRepository);
         this.productRepository = productRepository;
         this.productTranslationRepository = productTranslationRepository;
@@ -100,11 +104,12 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
         this.minioProperties = minioProperties;
         this.localeHelper = localeHelper;
         this.userService = userService;
+        this.productMapper = productMapper;
     }
 
     @Transactional
     @Override
-    public ProductResponse createProduct(ProductRequest request, MultipartFile[] images) {
+    public ProductResponse createProduct(ProductRequest request, MultipartFile thumbnail, MultipartFile[] images) {
         String email = ApplicationContextProvider.getCurrentUserLogin()
                 .orElseThrow(() -> new BusinessException("Unauthorized", HttpStatus.UNAUTHORIZED));
         User seller = userService.findEntityByEmail(email);
@@ -156,18 +161,29 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
             }
         }
 
+        if (thumbnail != null && !thumbnail.isEmpty()) {
+            ImageUtils.validate(thumbnail);
+            byte[] compressed = ImageUtils.compress(thumbnail);
+            String objectKey = saved.getId() + "/0.jpg";
+            storageService.uploadBytes(compressed, "products", objectKey, "image/jpeg");
+            ProductImage img = new ProductImage();
+            img.setProduct(saved);
+            img.setImageUrl(objectKey);
+            img.setDisplayOrder(0);
+            productImageRepository.save(img);
+        }
+
         if (images != null) {
             for (int i = 0; i < images.length; i++) {
                 MultipartFile file = images[i];
                 ImageUtils.validate(file);
                 byte[] compressed = ImageUtils.compress(file);
-                String objectKey = saved.getId() + "/" + i + ".jpg";
+                String objectKey = saved.getId() + "/" + (i + 1) + ".jpg";
                 storageService.uploadBytes(compressed, "products", objectKey, "image/jpeg");
-
                 ProductImage img = new ProductImage();
                 img.setProduct(saved);
                 img.setImageUrl(objectKey);
-                img.setDisplayOrder(i);
+                img.setDisplayOrder(i + 1);
                 productImageRepository.save(img);
             }
         }
@@ -198,8 +214,8 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
         meta.setPages(page.getTotalPages());
         meta.setTotal(page.getTotalElements());
 
-        List<ProductResponse> content = page.getContent().stream()
-                .map(p -> buildResponse(p, lang))
+        List<ProductSummaryResponse> content = page.getContent().stream()
+                .map(p -> buildSummaryResponse(p, lang))
                 .toList();
 
         ResultPaginationResponse result = new ResultPaginationResponse();
@@ -208,10 +224,48 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
         return result;
     }
 
+    @Override
+    protected void mergeEntity(Product source, Product target) {
+        productMapper.updateProductFromRequest(source, target);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<Product> getBySeller(UUID sellerId) {
         return productRepository.findBySeller_Id(sellerId);
+    }
+
+    private ProductSummaryResponse buildSummaryResponse(Product product, String lang) {
+        ProductSummaryResponse resp = new ProductSummaryResponse();
+        resp.setId(product.getId());
+        resp.setPrice(product.getPrice());
+        resp.setConditionNote(product.getConditionNote());
+        resp.setStatus(product.getStatus().name());
+        resp.setOriginalLanguage(product.getOriginalLanguage());
+        resp.setCreatedAt(product.getCreatedAt());
+
+        if (product.getSeller() != null) {
+            resp.setSellerId(product.getSeller().getId());
+            resp.setSellerName(product.getSeller().getFullName());
+        }
+
+        ProductTranslation trans = resolveProductTranslation(product.getId(), lang, product.getOriginalLanguage());
+        if (trans != null) {
+            resp.setTitle(trans.getTitle());
+        }
+
+        if (product.getCategory() != null) {
+            resp.setCategoryId(product.getCategory().getId());
+            resp.setCategoryName(resolveCategoryName(product.getCategory().getId(), lang, product.getOriginalLanguage()));
+        }
+
+        if (product.getBrand() != null) {
+            resp.setBrandId(product.getBrand().getId());
+            resp.setBrandName(resolveBrandName(product.getBrand().getId(), lang, product.getOriginalLanguage()));
+        }
+
+        resp.setThumbnailUrl(resolveThumbnailUrl(product.getId()));
+        return resp;
     }
 
     private ProductResponse buildResponse(Product product, String lang) {

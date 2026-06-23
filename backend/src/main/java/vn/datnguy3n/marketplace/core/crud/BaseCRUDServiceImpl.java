@@ -32,13 +32,24 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
     }
 
     @Override
-    public T update(UUID id, T entity) {
-        getById(id);
-        entity.setId(id);
-        beforeUpdate(entity);
-        T updated = repository.save(entity);
-        afterUpdate(updated);
-        return updated;
+    public T update(UUID id, T incomingEntity) {
+    // 🌟 1. BẮT BUỘC: Phải hứng lấy Entity đang có sẵn dưới Database
+    T existingEntity = getById(id); 
+    
+    // 2. Đảm bảo ID không bị sai lệch
+    incomingEntity.setId(id);
+    
+    // 🌟 3. ỦY QUYỀN: Gọi hàm merge để lớp con dùng MapStruct tự đè dữ liệu né null
+    mergeEntity(incomingEntity, existingEntity);
+    
+    // 4. Chạy logic bổ sung trước khi update dựa trên Entity ĐÃ ĐƯỢC MERGE
+    beforeUpdate(existingEntity);
+    
+    // 5. Lưu Entity cũ đã được cập nhật bán phần xuống DB
+    T updated = repository.save(existingEntity);
+    
+    afterUpdate(updated);
+    return updated;
     }
 
     @Override
@@ -75,6 +86,12 @@ public abstract class BaseCRUDServiceImpl<T extends BaseEntity> implements BaseC
         
         repository.save(entity);
     }
+
+    /**
+     * Hàm Hook để các Service con (như ProductServiceImpl) override 
+     * và nhét MapStruct Mapper tương ứng vào đây.
+     */
+    protected void mergeEntity(T source, T target) {}
 
     protected void beforeCreate(T entity) {}
 

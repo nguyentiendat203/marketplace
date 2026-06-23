@@ -1,5 +1,6 @@
 package vn.datnguy3n.marketplace.modules.product.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +23,7 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 @Setter
 public class AttributeTypeTranslation extends BaseEntity {
 
+    @JsonIgnoreProperties({"translations", "options"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "atyp_trn_type_id", nullable = false)
     private AttributeType attributeType;
