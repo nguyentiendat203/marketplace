@@ -1,20 +1,15 @@
 package vn.datnguy3n.marketplace.modules.product.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
-import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 import vn.datnguy3n.marketplace.common.storage.StorageService;
 import vn.datnguy3n.marketplace.common.utils.ImageUtils;
 import vn.datnguy3n.marketplace.common.utils.LocaleHelper;
@@ -23,7 +18,6 @@ import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductRequest;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductResponse;
-import vn.datnguy3n.marketplace.modules.product.dto.ProductSummaryResponse;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeOption;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeOptionTranslation;
 import vn.datnguy3n.marketplace.modules.product.entity.AttributeTypeTranslation;
@@ -48,7 +42,6 @@ import vn.datnguy3n.marketplace.modules.product.repository.product.ProductAttrib
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductImageRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductTranslationRepository;
-import vn.datnguy3n.marketplace.modules.product.specification.ProductSpecification;
 import vn.datnguy3n.marketplace.modules.user.UserService;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
@@ -198,32 +191,6 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
         return buildResponse(product, localeHelper.getCurrentLanguage());
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public ResultPaginationResponse getProducts(UUID categoryId, BigDecimal minPrice, BigDecimal maxPrice,
-            List<UUID> attributeOptionIds, Pageable pageable) {
-        Specification<Product> spec = ProductSpecification.withFilters(
-                categoryId, minPrice, maxPrice, attributeOptionIds);
-
-        Page<Product> page = productRepository.findAll(spec, pageable);
-        String lang = localeHelper.getCurrentLanguage();
-
-        ResultPaginationResponse.Meta meta = new ResultPaginationResponse.Meta();
-        meta.setPage(pageable.getPageNumber() + 1);
-        meta.setPageSize(pageable.getPageSize());
-        meta.setPages(page.getTotalPages());
-        meta.setTotal(page.getTotalElements());
-
-        List<ProductSummaryResponse> content = page.getContent().stream()
-                .map(p -> buildSummaryResponse(p, lang))
-                .toList();
-
-        ResultPaginationResponse result = new ResultPaginationResponse();
-        result.setMeta(meta);
-        result.setResult(content);
-        return result;
-    }
-
     @Override
     protected void mergeEntity(Product source, Product target) {
         productMapper.updateProductFromRequest(source, target);
@@ -233,39 +200,6 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
     @Override
     public List<Product> getBySeller(UUID sellerId) {
         return productRepository.findBySeller_Id(sellerId);
-    }
-
-    private ProductSummaryResponse buildSummaryResponse(Product product, String lang) {
-        ProductSummaryResponse resp = new ProductSummaryResponse();
-        resp.setId(product.getId());
-        resp.setPrice(product.getPrice());
-        resp.setConditionNote(product.getConditionNote());
-        resp.setStatus(product.getStatus().name());
-        resp.setOriginalLanguage(product.getOriginalLanguage());
-        resp.setCreatedAt(product.getCreatedAt());
-
-        if (product.getSeller() != null) {
-            resp.setSellerId(product.getSeller().getId());
-            resp.setSellerName(product.getSeller().getFullName());
-        }
-
-        ProductTranslation trans = resolveProductTranslation(product.getId(), lang, product.getOriginalLanguage());
-        if (trans != null) {
-            resp.setTitle(trans.getTitle());
-        }
-
-        if (product.getCategory() != null) {
-            resp.setCategoryId(product.getCategory().getId());
-            resp.setCategoryName(resolveCategoryName(product.getCategory().getId(), lang, product.getOriginalLanguage()));
-        }
-
-        if (product.getBrand() != null) {
-            resp.setBrandId(product.getBrand().getId());
-            resp.setBrandName(resolveBrandName(product.getBrand().getId(), lang, product.getOriginalLanguage()));
-        }
-
-        resp.setThumbnailUrl(resolveThumbnailUrl(product.getId()));
-        return resp;
     }
 
     private ProductResponse buildResponse(Product product, String lang) {

@@ -5,5 +5,4 @@ import vn.datnguy3n.marketplace.modules.permission.entity.Permission;
 
 public interface PermissionRepository extends BaseRepository<Permission> {
 
-    boolean existsByName(String name);
 }

@@ -14,14 +14,14 @@ import vn.datnguy3n.marketplace.core.crud.BaseEntity;
 public class Permission extends BaseEntity {
 
     @Column(name = "pms_name", nullable = false, unique = true, length = 100)
-    private String name;
+    private String pmsName;
 
-    @Column(name = "pms_resource", nullable = false, length = 100)
-    private String resource;
+    @Column(name = "pms_api_path", nullable = false, length = 255)
+    private String pmsApiPath;
 
-    @Column(name = "pms_action", nullable = false, length = 50)
-    private String action;
+    @Column(name = "pms_api_method", nullable = false, length = 10)
+    private String pmsApiMethod;
 
-    @Column(name = "pms_description", length = 255)
-    private String description;
+    @Column(name = "pms_api_module", length = 100)
+    private String pmsApiModule;
 }
