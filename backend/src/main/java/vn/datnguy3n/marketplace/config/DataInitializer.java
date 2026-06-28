@@ -1,6 +1,7 @@
 package vn.datnguy3n.marketplace.config;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
@@ -33,6 +34,8 @@ import vn.datnguy3n.marketplace.modules.product.repository.category.CategoryTran
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductAttributeRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductRepository;
 import vn.datnguy3n.marketplace.modules.product.repository.product.ProductTranslationRepository;
+import vn.datnguy3n.marketplace.modules.permission.PermissionRepository;
+import vn.datnguy3n.marketplace.modules.permission.entity.Permission;
 import vn.datnguy3n.marketplace.modules.role.RoleRepository;
 import vn.datnguy3n.marketplace.modules.role.entity.Role;
 import vn.datnguy3n.marketplace.modules.user.UserRepository;
@@ -44,6 +47,7 @@ import vn.datnguy3n.marketplace.modules.user.entity.User;
 public class DataInitializer implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -63,6 +67,7 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         seedRoles();
+        seedPermissions();
         if (productRepository.count() > 0) {
             log.info("[Seed] Product data already exists — skipping seed.");
             return;
@@ -87,6 +92,71 @@ public class DataInitializer implements CommandLineRunner {
             roleRepository.save(adminRole);
         }
         log.info("[Seed] Roles OK");
+    }
+
+    // ─── Permissions ─────────────────────────────────────────────────────────
+
+    private void seedPermissions() {
+        List<Permission> savedPermissions = new ArrayList<>();
+        for (Permission candidate : buildPermissions()) {
+            Permission saved = permissionRepository
+                    .findByPmsApiPathAndPmsApiMethod(candidate.getPmsApiPath(), candidate.getPmsApiMethod())
+                    .orElseGet(() -> permissionRepository.save(candidate));
+            savedPermissions.add(saved);
+        }
+
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
+        adminRole.setPermissions(savedPermissions);
+        roleRepository.save(adminRole);
+        log.info("[Seed] {} permissions seeded and assigned to ROLE_ADMIN", savedPermissions.size());
+    }
+
+    private List<Permission> buildPermissions() {
+        return List.of(
+                // PRODUCT — write ops only (GET is public)
+                perm("CREATE_PRODUCT",      "/api/v1/products",       "POST",   "PRODUCT"),
+                perm("UPDATE_PRODUCT",      "/api/v1/products/**",    "PUT",    "PRODUCT"),
+                perm("DELETE_PRODUCT",      "/api/v1/products/**",    "DELETE", "PRODUCT"),
+                // CATEGORY — write ops only (GET is public)
+                perm("CREATE_CATEGORY",     "/api/v1/categories",     "POST",   "CATEGORY"),
+                perm("UPDATE_CATEGORY",     "/api/v1/categories/**",  "PUT",    "CATEGORY"),
+                perm("DELETE_CATEGORY",     "/api/v1/categories/**",  "DELETE", "CATEGORY"),
+                // BRAND — write ops only (GET is public)
+                perm("CREATE_BRAND",        "/api/v1/brands",         "POST",   "BRAND"),
+                perm("UPDATE_BRAND",        "/api/v1/brands/**",      "PUT",    "BRAND"),
+                perm("DELETE_BRAND",        "/api/v1/brands/**",      "DELETE", "BRAND"),
+                // ATTRIBUTE — write ops only (GET is public)
+                perm("CREATE_ATTRIBUTE",    "/api/v1/attribute-types",    "POST",   "ATTRIBUTE"),
+                perm("UPDATE_ATTRIBUTE",    "/api/v1/attribute-types/**", "PUT",    "ATTRIBUTE"),
+                perm("DELETE_ATTRIBUTE",    "/api/v1/attribute-types/**", "DELETE", "ATTRIBUTE"),
+                // USER — full CRUD
+                perm("GET_ALL_USERS",       "/api/v1/users",    "GET",    "USER"),
+                perm("GET_USER",            "/api/v1/users/**", "GET",    "USER"),
+                perm("CREATE_USER",         "/api/v1/users",    "POST",   "USER"),
+                perm("UPDATE_USER",         "/api/v1/users/**", "PUT",    "USER"),
+                perm("DELETE_USER",         "/api/v1/users/**", "DELETE", "USER"),
+                // ROLE — full CRUD
+                perm("GET_ALL_ROLES",       "/api/v1/roles",    "GET",    "ROLE"),
+                perm("GET_ROLE",            "/api/v1/roles/**", "GET",    "ROLE"),
+                perm("CREATE_ROLE",         "/api/v1/roles",    "POST",   "ROLE"),
+                perm("UPDATE_ROLE",         "/api/v1/roles/**", "PUT",    "ROLE"),
+                perm("DELETE_ROLE",         "/api/v1/roles/**", "DELETE", "ROLE"),
+                // PERMISSION — full CRUD
+                perm("GET_ALL_PERMISSIONS", "/api/v1/permissions",    "GET",    "PERMISSION"),
+                perm("GET_PERMISSION",      "/api/v1/permissions/**", "GET",    "PERMISSION"),
+                perm("CREATE_PERMISSION",   "/api/v1/permissions",    "POST",   "PERMISSION"),
+                perm("UPDATE_PERMISSION",   "/api/v1/permissions/**", "PUT",    "PERMISSION"),
+                perm("DELETE_PERMISSION",   "/api/v1/permissions/**", "DELETE", "PERMISSION")
+        );
+    }
+
+    private Permission perm(String name, String apiPath, String method, String module) {
+        Permission p = new Permission();
+        p.setPmsName(name);
+        p.setPmsApiPath(apiPath);
+        p.setPmsApiMethod(method);
+        p.setPmsApiModule(module);
+        return p;
     }
 
     // ─── Seed Seller ─────────────────────────────────────────────────────────
