@@ -2,15 +2,14 @@ package vn.datnguy3n.marketplace.modules.kyc;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.data.jpa.domain.Specification;
 
 import com.turkraft.springfilter.boot.Filter;
 
@@ -20,6 +19,7 @@ import vn.datnguy3n.marketplace.common.storage.StorageService;
 import vn.datnguy3n.marketplace.common.utils.ImageUtils;
 import vn.datnguy3n.marketplace.config.MinioProperties;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
+import vn.datnguy3n.marketplace.core.crud.BaseMapper;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.kyc.dto.KycResponse;
 import vn.datnguy3n.marketplace.modules.kyc.dto.KycReviewRequest;
@@ -30,20 +30,27 @@ import vn.datnguy3n.marketplace.modules.user.UserService;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Service
-public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements KycService {
+public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord, KycResponse> implements KycService {
 
     private final KycRepository kycRepository;
     private final StorageService storageService;
     private final UserService userService;
     private final MinioProperties minioProperties;
+    private final KycMapper kycMapper;
 
     public KycServiceImpl(KycRepository kycRepository, StorageService storageService,
-            UserService userService, MinioProperties minioProperties) {
+            UserService userService, MinioProperties minioProperties, KycMapper kycMapper) {
         super(kycRepository);
         this.kycRepository = kycRepository;
         this.storageService = storageService;
         this.userService = userService;
         this.minioProperties = minioProperties;
+        this.kycMapper = kycMapper;
+    }
+
+    @Override
+    protected BaseMapper<KycRecord, KycResponse> getMapper() {
+        return kycMapper;
     }
 
     @Override
@@ -95,24 +102,15 @@ public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements Ky
         record.setSelfieKey(selfieKey);
         record.setStatus(KycStatus.PENDING);
 
-        KycRecord saved = kycRepository.save(record);
-        return mapToResponse(saved, bucket);
+        return toDto(kycRepository.save(record));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ResultPaginationResponse getAdminKycList(@Filter Specification<KycRecord> spec, Pageable pageable) {
-        Page<KycRecord> page;
-        if (spec != null) {
-            page = kycRepository.findAll(spec, pageable);
-        } else {
-            page = kycRepository.findAll(pageable);
-        }
-
-        String bucket = minioProperties.getBuckets().get("kyc-vault");
-        List<KycResponse> responses = page.getContent().stream()
-                .map(record -> mapToResponse(record, bucket))
-                .collect(Collectors.toList());
+        Page<KycRecord> page = spec != null
+                ? kycRepository.findAll(spec, pageable)
+                : kycRepository.findAll(pageable);
 
         ResultPaginationResponse.Meta meta = new ResultPaginationResponse.Meta();
         meta.setPage(pageable.getPageNumber() + 1);
@@ -122,14 +120,14 @@ public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements Ky
 
         ResultPaginationResponse result = new ResultPaginationResponse();
         result.setMeta(meta);
-        result.setResult(responses);
+        result.setResult(page.getContent().stream().map(this::toDto).toList());
         return result;
     }
 
     @Override
     @Transactional
     public KycResponse reviewKyc(UUID id, KycReviewRequest request) {
-        KycRecord record = getById(id);
+        KycRecord record = fetchEntityById(id);
 
         if (record.getStatus() != KycStatus.PENDING) {
             throw new BusinessException("Chỉ có thể xét duyệt hồ sơ đang ở trạng thái PENDING", HttpStatus.BAD_REQUEST);
@@ -148,34 +146,33 @@ public class KycServiceImpl extends BaseCRUDServiceImpl<KycRecord> implements Ky
             userService.saveUser(user);
         }
 
-        KycRecord saved = kycRepository.save(record);
-        String bucket = minioProperties.getBuckets().get("kyc-vault");
-        return mapToResponse(saved, bucket);
+        return toDto(kycRepository.save(record));
     }
 
-    private KycResponse mapToResponse(KycRecord record, String bucket) {
+    @Override
+    public KycResponse toDto(KycRecord entity){
         KycResponse response = new KycResponse();
-        response.setId(record.getId());
-        response.setUserId(record.getUser().getId());
-        response.setUserEmail(record.getUser().getEmail());
-        response.setUserPhone(record.getUser().getPhone());
-        response.setDocumentType(record.getDocumentType());
-        response.setStatus(record.getStatus());
-        response.setReviewedBy(record.getReviewedBy());
-        response.setReviewNote(record.getReviewNote());
-        response.setCreatedAt(record.getCreatedAt());
-        response.setUpdatedAt(record.getUpdatedAt());
+        response.setId(entity.getId());
+        response.setUserId(entity.getUser().getId());
+        response.setUserEmail(entity.getUser().getEmail());
+        response.setUserPhone(entity.getUser().getPhone());
+        response.setDocumentType(entity.getDocumentType());
+        response.setStatus(entity.getStatus());
+        response.setReviewedBy(entity.getReviewedBy());
+        response.setReviewNote(entity.getReviewNote());
+        response.setCreatedAt(entity.getCreatedAt());
+        response.setUpdatedAt(entity.getUpdatedAt());
 
-        if (record.getFrontImageKey() != null) {
-            response.setFrontImageUrl(storageService.generatePresignedUrl(bucket, record.getFrontImageKey(), 15));
+        String bucket = minioProperties.getBuckets().get("kyc-vault");
+        if (entity.getFrontImageKey() != null) {
+            response.setFrontImageUrl(storageService.generatePresignedUrl(bucket, entity.getFrontImageKey(), 15));
         }
-        if (record.getBackImageKey() != null) {
-            response.setBackImageUrl(storageService.generatePresignedUrl(bucket, record.getBackImageKey(), 15));
+        if (entity.getBackImageKey() != null) {
+            response.setBackImageUrl(storageService.generatePresignedUrl(bucket, entity.getBackImageKey(), 15));
         }
-        if (record.getSelfieKey() != null) {
-            response.setSelfieUrl(storageService.generatePresignedUrl(bucket, record.getSelfieKey(), 15));
+        if (entity.getSelfieKey() != null) {
+            response.setSelfieUrl(storageService.generatePresignedUrl(bucket, entity.getSelfieKey(), 15));
         }
-
         return response;
     }
 }

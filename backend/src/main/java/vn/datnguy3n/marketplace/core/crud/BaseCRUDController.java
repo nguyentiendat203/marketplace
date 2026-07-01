@@ -17,37 +17,32 @@ import com.turkraft.springfilter.boot.Filter;
 
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
-public abstract class BaseCRUDController<T extends BaseEntity> {
+public abstract class BaseCRUDController<T extends BaseEntity, D> {
 
-    protected final BaseCRUDService<T> getService;
+    protected final BaseCRUDService<T, D> getService;
 
-    public BaseCRUDController(BaseCRUDService<T> getService) {
+    public BaseCRUDController(BaseCRUDService<T, D> getService) {
         this.getService = getService;
     }
 
     @PostMapping
-    public ResponseEntity<T> create(@RequestBody T entity) {
-        T created = getService.create(entity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<D> create(@RequestBody D dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(getService.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<T> update(@PathVariable("id") UUID id, @RequestBody T entity) {
-        T updated = getService.update(id, entity);
-        return ResponseEntity.ok(updated);
+    public ResponseEntity<D> update(@PathVariable("id") UUID id, @RequestBody D dto) {
+        return ResponseEntity.ok(getService.update(id, dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<T> getById(@PathVariable("id") UUID id) {
-        T found = getService.getById(id);
-        return ResponseEntity.ok(found);
+    public ResponseEntity<D> getById(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(getService.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<ResultPaginationResponse> getAll(@Filter Specification<T> spec,
-            Pageable pageable) {
-        ResultPaginationResponse result = getService.getAll(spec, pageable);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ResultPaginationResponse> getAll(@Filter Specification<T> spec, Pageable pageable) {
+        return ResponseEntity.ok(getService.getAll(spec, pageable));
     }
 
     @DeleteMapping("/{id}")

@@ -1,15 +1,16 @@
 package vn.datnguy3n.marketplace.modules.payment;
 
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
+import vn.datnguy3n.marketplace.modules.payment.dto.PaymentResponse;
 import vn.datnguy3n.marketplace.modules.payment.entity.Payment;
 
 import java.util.UUID;
 
-public interface PaymentService extends BaseCRUDService<Payment> {
+public interface PaymentService extends BaseCRUDService<Payment, PaymentResponse> {
 
-    Payment getByOrderId(UUID orderId);
+    PaymentResponse getByOrderId(UUID orderId);
 
     void handleWebhook(String payload, String stripeSignature);
 
-    Payment refund(UUID orderId);
+    PaymentResponse refund(UUID orderId);
 }

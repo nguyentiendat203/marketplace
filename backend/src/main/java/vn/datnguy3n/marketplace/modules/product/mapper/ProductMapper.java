@@ -1,17 +1,23 @@
 package vn.datnguy3n.marketplace.modules.product.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 
+import vn.datnguy3n.marketplace.core.crud.BaseMapper;
+import vn.datnguy3n.marketplace.core.crud.BaseMapperConfig;
+import vn.datnguy3n.marketplace.modules.product.dto.ProductResponse;
 import vn.datnguy3n.marketplace.modules.product.entity.Product;
 
-@Mapper(
-    componentModel = "spring",
-    unmappedTargetPolicy = ReportingPolicy.IGNORE,
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
-public interface ProductMapper {
-    void updateProductFromRequest(Product source, @MappingTarget Product target);
+@Mapper(config = BaseMapperConfig.class)
+public interface ProductMapper extends BaseMapper<Product, ProductResponse> {
+
+    @Override
+    ProductResponse toDto(Product entity);
+
+    @Override
+    Product toEntity(ProductResponse dto);
+
+    @Override
+    void updateEntityFromDto(ProductResponse dto, @MappingTarget Product entity);
 }

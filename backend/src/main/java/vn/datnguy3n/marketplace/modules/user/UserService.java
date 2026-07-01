@@ -5,9 +5,10 @@ import java.util.UUID;
 
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDService;
 import vn.datnguy3n.marketplace.modules.user.dto.ChangePasswordRequest;
+import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
-public interface UserService extends BaseCRUDService<User> {
+public interface UserService extends BaseCRUDService<User, UserResponse> {
 
     User findEntityByEmail(String email);
 

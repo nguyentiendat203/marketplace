@@ -1,10 +1,11 @@
 package vn.datnguy3n.marketplace.modules.user.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
+import vn.datnguy3n.marketplace.modules.role.dto.RoleResponse;
 
 @Getter
 @Setter
@@ -15,9 +16,8 @@ public class UserResponse {
     private String fullName;
     private String avatarUrl;
     private String phone;
-    private UUID roleId;
+    private RoleResponse role;
     private boolean active;
     private boolean kycVerified;
-    // private Role role;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

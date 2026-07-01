@@ -7,13 +7,13 @@ import org.springframework.data.jpa.domain.Specification;
 
 import vn.datnguy3n.marketplace.common.ResultPaginationResponse;
 
-public interface BaseCRUDService<T extends BaseEntity> {
+public interface BaseCRUDService<T extends BaseEntity, D> {
 
-    T create(T entity);
+    D create(D dto);
 
-    T update(UUID id, T entity);
+    D update(UUID id, D dto);
 
-    T getById(UUID id);
+    D getById(UUID id);
 
     ResultPaginationResponse getAll(Specification<T> spec, Pageable pageable);
 

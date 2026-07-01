@@ -2,8 +2,6 @@ package vn.datnguy3n.marketplace.modules.auth;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +32,7 @@ import vn.datnguy3n.marketplace.modules.auth.dto.ResetPasswordRequest;
 import vn.datnguy3n.marketplace.modules.auth.entity.PasswordResetToken;
 import vn.datnguy3n.marketplace.modules.mail.MailService;
 import vn.datnguy3n.marketplace.modules.role.RoleService;
+import vn.datnguy3n.marketplace.modules.role.dto.RoleResponse;
 import vn.datnguy3n.marketplace.modules.role.entity.Role;
 import vn.datnguy3n.marketplace.modules.user.UserService;
 import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
@@ -93,14 +92,15 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
         user.setRole(defaultRole);
         user.setActivated(false);
+        user.setActivationKey(UUID.randomUUID().toString());
 
-        User savedUser = userService.create(user);
+        userService.saveUser(user);
 
-        mailService.sendActivationEmail(savedUser);
+        mailService.sendActivationEmail(user);
 
         return "Đăng ký thành công! Vui lòng kiểm tra email của bạn để thực hiện xác thực kích hoạt tài khoản.";
     }
@@ -236,12 +236,16 @@ public class AuthServiceImpl implements AuthService {
         response.setFullName(user.getFullName());
         response.setAvatarUrl(user.getAvatarUrl());
         response.setPhone(user.getPhone());
-        response.setRoleId(user.getRole() != null ? user.getRole().getId() : null);
+        if (user.getRole() != null) {
+            RoleResponse roleResponse = new RoleResponse();
+            roleResponse.setId(user.getRole().getId());
+            roleResponse.setName(user.getRole().getName());
+            roleResponse.setDescription(user.getRole().getDescription());
+            response.setRole(roleResponse);
+        }
         response.setActive(user.isActivated());
         response.setKycVerified(user.isKycVerified());
-        response.setCreatedAt(user.getCreatedAt() != null
-                ? LocalDateTime.ofInstant(user.getCreatedAt(), ZoneId.systemDefault())
-                : null);
+        response.setCreatedAt(user.getCreatedAt());
         return response;
     }
 }

@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
+import vn.datnguy3n.marketplace.modules.payment.dto.PaymentResponse;
 import vn.datnguy3n.marketplace.modules.payment.entity.Payment;
 
 @RestController
 @RequestMapping("/api/v1/payments")
-public class PaymentController extends BaseCRUDController<Payment> {
+public class PaymentController extends BaseCRUDController<Payment, PaymentResponse> {
 
     private final PaymentService paymentService;
 
@@ -26,7 +27,7 @@ public class PaymentController extends BaseCRUDController<Payment> {
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<Payment> getByOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<PaymentResponse> getByOrder(@PathVariable UUID orderId) {
         return ResponseEntity.ok(paymentService.getByOrderId(orderId));
     }
 
@@ -39,7 +40,7 @@ public class PaymentController extends BaseCRUDController<Payment> {
     }
 
     @PostMapping("/order/{orderId}/refund")
-    public ResponseEntity<Payment> refund(@PathVariable UUID orderId) {
+    public ResponseEntity<PaymentResponse> refund(@PathVariable UUID orderId) {
         return ResponseEntity.ok(paymentService.refund(orderId));
     }
 }

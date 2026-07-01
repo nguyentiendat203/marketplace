@@ -14,7 +14,7 @@ import vn.datnguy3n.marketplace.modules.kyc.dto.KycReviewRequest;
 import vn.datnguy3n.marketplace.modules.kyc.entity.DocumentType;
 import vn.datnguy3n.marketplace.modules.kyc.entity.KycRecord;
 
-public interface KycService extends BaseCRUDService<KycRecord> {
+public interface KycService extends BaseCRUDService<KycRecord, KycResponse> {
 
     KycResponse submitKyc(DocumentType documentType, MultipartFile frontImage, MultipartFile backImage, MultipartFile selfieImage);
 

@@ -10,11 +10,9 @@ import vn.datnguy3n.marketplace.modules.product.dto.ProductRequest;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductResponse;
 import vn.datnguy3n.marketplace.modules.product.entity.Product;
 
-public interface ProductService extends BaseCRUDService<Product> {
+public interface ProductService extends BaseCRUDService<Product, ProductResponse> {
 
     ProductResponse createProduct(ProductRequest request, MultipartFile thumbnail, MultipartFile[] images);
 
-    ProductResponse getProductDetail(UUID id);
-    
-    List<Product> getBySeller(UUID sellerId);
+    List<ProductResponse> getBySeller(UUID sellerId);
 }

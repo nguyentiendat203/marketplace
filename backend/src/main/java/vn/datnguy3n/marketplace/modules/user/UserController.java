@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
 import vn.datnguy3n.marketplace.modules.user.dto.ChangePasswordRequest;
+import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @RestController
 @RequestMapping("/api/v1/users")
-public class UserController extends BaseCRUDController<User> {
+public class UserController extends BaseCRUDController<User, UserResponse> {
 
     private final UserService userService;
 

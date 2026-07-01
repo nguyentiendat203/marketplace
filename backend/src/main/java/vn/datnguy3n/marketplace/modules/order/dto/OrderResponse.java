@@ -1,11 +1,11 @@
 package vn.datnguy3n.marketplace.modules.order.dto;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,8 +19,8 @@ public class OrderResponse {
     private String status;
     private String stripePaymentIntentId;
     private ShippingAddressInfo shippingAddress;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     @Getter
     @Setter

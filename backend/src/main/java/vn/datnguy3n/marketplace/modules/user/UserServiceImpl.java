@@ -9,27 +9,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import vn.datnguy3n.marketplace.common.ApplicationContextProvider;
+import vn.datnguy3n.marketplace.core.crud.BaseMapper;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.user.dto.ChangePasswordRequest;
+import vn.datnguy3n.marketplace.modules.user.dto.UserResponse;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Service
-public class UserServiceImpl extends BaseCRUDServiceImpl<User> implements UserService {
+public class UserServiceImpl extends BaseCRUDServiceImpl<User, UserResponse> implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         super(userRepository);
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
-    protected void beforeCreate(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setActivationKey(UUID.randomUUID().toString());
+    protected BaseMapper<User, UserResponse> getMapper() {
+        return userMapper;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class UserServiceImpl extends BaseCRUDServiceImpl<User> implements UserSe
     @Override
     @Transactional
     public void updateRefreshToken(UUID userId, String refreshToken) {
-        User user = getById(userId);
+        User user = fetchEntityById(userId);
         user.setRefreshToken(refreshToken);
         repository.save(user);
     }

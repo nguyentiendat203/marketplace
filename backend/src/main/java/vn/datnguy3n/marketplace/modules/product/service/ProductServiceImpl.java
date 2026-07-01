@@ -14,6 +14,7 @@ import vn.datnguy3n.marketplace.common.storage.StorageService;
 import vn.datnguy3n.marketplace.common.utils.ImageUtils;
 import vn.datnguy3n.marketplace.common.utils.LocaleHelper;
 import vn.datnguy3n.marketplace.config.MinioProperties;
+import vn.datnguy3n.marketplace.core.crud.BaseMapper;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDServiceImpl;
 import vn.datnguy3n.marketplace.core.exception.BusinessException;
 import vn.datnguy3n.marketplace.modules.product.dto.ProductRequest;
@@ -46,7 +47,7 @@ import vn.datnguy3n.marketplace.modules.user.UserService;
 import vn.datnguy3n.marketplace.modules.user.entity.User;
 
 @Service
-public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements ProductService {
+public class ProductServiceImpl extends BaseCRUDServiceImpl<Product, ProductResponse> implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductTranslationRepository productTranslationRepository;
@@ -98,6 +99,11 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
         this.localeHelper = localeHelper;
         this.userService = userService;
         this.productMapper = productMapper;
+    }
+
+    @Override
+    protected BaseMapper<Product, ProductResponse> getMapper() {
+        return productMapper;
     }
 
     @Transactional
@@ -181,25 +187,19 @@ public class ProductServiceImpl extends BaseCRUDServiceImpl<Product> implements 
             }
         }
 
-        return buildResponse(saved, localeHelper.getCurrentLanguage());
+        return toDto(saved);
+        // return buildResponse(saved, localeHelper.getCurrentLanguage());
+    }
+
+    @Override
+    protected ProductResponse toDto(Product entity) {
+        return buildResponse(entity, localeHelper.getCurrentLanguage());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public ProductResponse getProductDetail(UUID id) {
-        Product product = getById(id);
-        return buildResponse(product, localeHelper.getCurrentLanguage());
-    }
-
-    @Override
-    protected void mergeEntity(Product source, Product target) {
-        productMapper.updateProductFromRequest(source, target);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Product> getBySeller(UUID sellerId) {
-        return productRepository.findBySeller_Id(sellerId);
+    public List<ProductResponse> getBySeller(UUID sellerId) {
+        return productRepository.findBySeller_Id(sellerId).stream().map(this::toDto).toList();
     }
 
     private ProductResponse buildResponse(Product product, String lang) {

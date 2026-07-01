@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
 import vn.datnguy3n.marketplace.modules.role.dto.RolePermissionRequest;
+import vn.datnguy3n.marketplace.modules.role.dto.RoleResponse;
 import vn.datnguy3n.marketplace.modules.role.entity.Role;
 
 @RestController
 @RequestMapping("/api/v1/roles")
-public class RoleController extends BaseCRUDController<Role> {
+public class RoleController extends BaseCRUDController<Role, RoleResponse> {
 
     private final RoleService roleService;
 
@@ -26,7 +27,7 @@ public class RoleController extends BaseCRUDController<Role> {
     }
 
     @PostMapping("/{id}/permissions")
-    public ResponseEntity<Role> assignPermissions(@PathVariable("id") UUID id,
+    public ResponseEntity<RoleResponse> assignPermissions(@PathVariable("id") UUID id,
             @Valid @RequestBody RolePermissionRequest request) {
         return ResponseEntity.ok(roleService.assignPermissions(id, request));
     }

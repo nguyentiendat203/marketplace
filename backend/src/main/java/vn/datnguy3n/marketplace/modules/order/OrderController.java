@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import vn.datnguy3n.marketplace.core.crud.BaseCRUDController;
+import vn.datnguy3n.marketplace.modules.order.dto.OrderResponse;
 import vn.datnguy3n.marketplace.modules.order.entity.Order;
 
 @RestController
 @RequestMapping("/api/v1/orders")
-public class OrderController extends BaseCRUDController<Order> {
+public class OrderController extends BaseCRUDController<Order, OrderResponse> {
 
     private final OrderService orderService;
 
@@ -26,17 +27,17 @@ public class OrderController extends BaseCRUDController<Order> {
     }
 
     @GetMapping("/buyer/{buyerId}")
-    public ResponseEntity<List<Order>> getByBuyer(@PathVariable UUID buyerId) {
+    public ResponseEntity<List<OrderResponse>> getByBuyer(@PathVariable UUID buyerId) {
         return ResponseEntity.ok(orderService.getByBuyer(buyerId));
     }
 
     @GetMapping("/seller/{sellerId}")
-    public ResponseEntity<List<Order>> getBySeller(@PathVariable UUID sellerId) {
+    public ResponseEntity<List<OrderResponse>> getBySeller(@PathVariable UUID sellerId) {
         return ResponseEntity.ok(orderService.getBySeller(sellerId));
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Order> updateStatus(
+    public ResponseEntity<OrderResponse> updateStatus(
             @PathVariable UUID id,
             @RequestParam String status,
             @RequestParam UUID requesterId) {
@@ -44,7 +45,7 @@ public class OrderController extends BaseCRUDController<Order> {
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Order> cancel(
+    public ResponseEntity<OrderResponse> cancel(
             @PathVariable UUID id,
             @RequestParam UUID requesterId) {
         return ResponseEntity.ok(orderService.cancel(id, requesterId));
